@@ -1,0 +1,78 @@
+{
+  "origin": ["#preamble# #grid# #postamble#"],
+  "preamble": ["{svg <svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"310\" height=\"270\">#rect#"],
+  "rect": ["<rect x=\"0\" y=\"0\" style=\"fill:\\#accede\" width=\"300\" height=\"270\" />"],
+  "postamble": ["</g></svg>}"],
+
+ "grid": [ 
+    "#3x4#", "#3x4#", "#3x4#", "#3x4#", "#3x4#", "#3x4#", "#3x4#", 
+    "#3x3#", "#3x3#", "#3x3#", "#3x3#", "#3x3#", "#3x3#", 
+    "#3x2#", "#3x2#", "#3x2#", "#3x2#", "#3x2#", 
+    "#3x1#", "#3x1#", "#3x1#", "#3x1#", 
+    "#3x0#", "#3x0#", "#3x0#", 
+    "#2x4#", "#2x4#", "#2x4#", "#2x4#", "#2x4#", "#2x4#", 
+    "#2x3#", "#2x3#", "#2x3#", "#2x3#", "#2x3#", 
+    "#2x2#", "#2x2#", "#2x2#", "#2x2#", 
+    "#2x1#", "#2x1#", "#2x1#", 
+    "#2x0#", "#2x0#", 
+    "#1x4#", "#1x4#", "#1x4#", "#1x4#", "#1x4#",
+    "#1x3#", "#1x3#", "#1x3#", "#1x3#", 
+    "#1x2#", "#1x2#", "#1x2#", 
+    "#1x1#", "#1x1#", 
+    "#1x0#" ],
+
+ "3x4": ["#[x:65][y:80]offset# #west of 3# #right# #col of 3# #right# #col of 3# #right# #col of 3# #right# #col of 3# #right# #east of 3#</g></g></g></g></g>"],
+ "3x3": ["#[x:85][y:80]offset# #west of 3# #right# #col of 3# #right# #col of 3# #right# #col of 3# #right# #east of 3#</g></g></g></g>"],
+ "3x2": ["#[x:105][y:80]offset# #west of 3# #right# #col of 3# #right# #col of 3# #right# #east of 3#</g></g></g>"],
+ "3x1": ["#[x:125][y:80]offset# #west of 3# #right# #col of 3# #right# #east of 3#</g></g>"],
+  "3x0": ["#[x:145][y:80]offset# #west of 3# #right# #east of 3#</g>"],
+
+ "2x4": ["#[x:65][y:100]offset# #west of 2# #right# #col of 2# #right# #col of 2# #right# #col of 2# #right# #col of 2# #right# #east of 2#</g></g></g></g></g>"],
+ "2x3": ["#[x:85][y:100]offset# #west of 2# #right# #col of 2# #right# #col of 2# #right# #col of 2# #right# #east of 2#</g></g></g></g>"],
+ "2x2": ["#[x:105][y:100]offset# #west of 2# #right# #col of 2# #right# #col of 2# #right# #east of 2#</g></g></g>"],
+ "2x1": ["#[x:125][y:100]offset# #west of 2# #right# #col of 2# #right# #east of 2#</g></g>"],
+ "2x0": ["#[x:145][y:100]offset# #west of 2# #right# #east of 2#</g>"],
+
+ "1x4": ["#[x:65][y:120]offset# #west of 1# #right# #col of 1# #right# #col of 1# #right# #col of 1# #right# #col of 1# #right# #east of 1#</g></g></g></g></g>"],
+ "1x3": ["#[x:85][y:120]offset# #west of 1# #right# #col of 1# #right# #col of 1# #right# #col of 1# #right# #east of 1#</g></g></g></g>"],
+ "1x2": ["#[x:105][y:120]offset# #west of 1# #right# #col of 1# #right# #col of 1# #right# #east of 1#</g></g></g>"],
+ "1x1": ["#[x:125][y:120]offset# #west of 1# #right# #col of 1# #right# #east of 1#</g></g>"],
+ "1x0": ["#[x:145][y:120]offset# #west of 1# #right# #east of 1#</g>"],
+
+  "down": ["<g transform=\"translate(0\\,40)\">"],
+  "right": ["<g transform=\"translate(40\\,0)\">"],
+  "offset": ["<g transform=\"translate(#x#, #y#)\">"],
+
+"col of 3": ["#north# #down# #mid# #down# #mid# #down# #mid# #down# #south#</g></g></g></g>"],
+"west of 3": ["#north west# #down# #west# #down# #west# #down# #south west#</g></g></g>"],
+"east of 3": ["#north east# #down# #east# #down# #east# #down# #south east#</g></g></g>"],
+
+"col of 2": ["#north# #down# #mid# #down# #mid# #down# #south#</g></g></g>"],
+"west of 2": ["#north west# #down# #west# #down# #south west#</g></g>"],
+"east of 2": ["#north east# #down# #east# #down# #south east#</g></g>"],
+
+"col of 1": ["#north# #down# #mid# #down# #south#</g></g>"],
+"west of 1": ["#north west# #down# #south west#</g>"],
+"east of 1": ["#north east# #down# #south east#</g>"],
+
+  "north west": ["<path d=\"m 0 30 l -20 -20 a 30 30 0 0 1 -10 -30 a 30 30 0 0 1 30 10 m -10 20 l 20 -20\" #outline#></path><path d=\"m 0 30 l -20 -20 a 30 30 0 0 1 -10 -30 a 30 30 0 0 1 30 10 m -10 20 l 20 -20\" #filler#></path>"],
+  "north": ["<path d=\"m -30 -10 a 20 20 0 0 1 30 0 m 0 10 l 10 -10\" #outline#></path><path d=\"m -30 -10 a 20 20 0 0 1 30 0 m 0 10 l 10 -10 m -39 -1 l -12 12\" #filler#/>"],
+  "north east": ["<path d=\"m -10  20  l -20 -20 m -10 0 l   10 -10 a 30 30 0 0 1   30 -10 a 30 30 0 0 1 -10  30 m -30 -20\" #outline#></path><path d=\"m -10 20 l -20 -20 m -11 1 l   11 -11 a 30 30 0 0 1  30 -10 a 30 30 0 0 1 -10   30 m -30 -20 a \" #filler#></path>"],
+  "west": ["<path d=\"m -20 -30 l 20 20 m 10 0 l -20 20 m 0 10 l -10 -10 a 20 20 0 0 1 0 -30\" #outline#></path><path d=\"m -21 -31 l 21 21 m 10 0 l -20 20 m 0 10 l -10 -10 a 20 20 0 0 1 0 -30\" #filler#></path><path d=\"m -20 -30 l 20 20\" #outline#/> <path d=\"m -21 -31 l 21 21\" #filler#/>"],
+  "east": ["<path d=\"m -10 20 l -20 -20 m -10 0 l 20 -20 m 0 -10 l 10 10 a 20 20 0 0 1 0 30\" #outline#></path><path d=\"m -10 20 l -20 -20 m -10 0 l 20 -20 m -1 -11 l 11 11 a 20 20 0 0 1 0 30\" #filler#></path><path d=\"m -20 -20 l -21 21\" #filler# />"],
+ "south west": ["<path d=\"m -20 -30 l 20 20 m 10 0 l -10 10 a 30 30 0 0 1 -30 10 a 30 30 0 0 1 10 -30 m 30 20\" #outline#></path><path d=\"m -21 -31 l 21 21 m 10 0 l -10 10 a 30 30 0 0 1 -30 10 a 30 30 0 0 1 10 -30 m 30 20\" #filler#></path><path d=\"m -20 -30 l 20 20\" #outline#></path><path d=\"m -21 -31 l 21 21\" #filler#></path>"],
+  "south": ["<path d=\"m -30 -40 a 20 20 0 0 0 30 0 l 10 -10 m 0 10\" #outline#></path><path d=\"m -30 -40 a 20 20 0 0 0 30 0 l 10 -10 m 0 10\" #filler# /><path d=\"m -30 -50 l -10 10\" #outline# /><path d=\"m -29 -51 l -12 12\" #filler# />"],
+  "south east": ["<path d=\"m -30 -40 l 20 20 a 30 30 0 0 1 10 30 a 30 30 0 0 1 -30 -10 m 10 -20 l -20 20\" #outline#></path><path d=\"m -30 -40 l 20 20 a 30 30 0 0 1 10 30 a 30 30 0 0 1 -30 -10 m 10 -20 l -20 20\" #filler# /><path d=\"m -30 -10 l -11 11\" #filler#/> <path d=\"m -30 -10 l -10 10\" #outline# /><path d=\"m -29 -11 l -12 12\" #filler# />"],
+
+"mid": ["#variant# #fill forward#"],
+"variant": ["#cross#", "#bend horizontal#", "#bend vertical#"],
+"cross": ["<path d=\"m -30 -40 l 30 30 m -30 0 l 10 -10 m 10 -10 l 10 -10\" #outline#></path><path d=\"m -30 -40 l 30 30 m -31 1 l 11 -11 m 10 -10 l 11 -11\" #filler#></path>"],
+"bend horizontal": ["<path d=\"m -30 -40 a 20 20 0 0 0 30 0 m -30 30 a 20 20 0 0 1 30 0\" #outline#></path><path d=\"m -30 -40 a 20 20 0 0 0 30 0 m -30 30 a 20 20 0 0 1 30 0 m -1 -29 l 2 -2 m -30 30 l -2 2\" #filler# /><path d=\"m -30 -50 l -10 10\" #outline# /><path d=\"m -29 -51 l -12 12\" #filler# />"],
+"bend vertical": ["<path d=\"m -30 -40 a 20 20 0 0 1 0 30 m 30 -30 a 20 20 0 0 0 0 30\" #outline#></path><path d=\"m -30 -40 a 20 20 0 0 1 0 30 m 30 -30 a 20 20 0 0 0 0 30 m -1 -29 l 2 -2 m -31 31 l -2 2\" #filler# /><path d=\"m -30 -50 l -10 10\" #outline# /><path d=\"m -29 -51 l -12 12\" #filler# />"],
+
+"fill forward": ["<path d=\"m 10 -10 l -10 10\" #outline#></path><path d=\"m 11 -11 l -12 12\" #filler#></path>"],
+
+"outline": ["stroke=\"black\" stroke-width=\"15\" stroke-linecap=\"butt\" fill-opacity=\"0\""],
+"filler": ["stroke=\"white\" stroke-width=\"10\" stroke-linecap=\"butt\" fill-opacity=\"0\""],
+"red": ["stroke=\"red\" stroke-width=\"10\" stroke-linecap=\"butt\" fill-opacity=\"0\""]
+}
