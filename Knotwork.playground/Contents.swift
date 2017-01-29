@@ -90,6 +90,6 @@ extension Grid {
     }
 }
 
-var grid = Grid(rows: 10, cols: 0)
+var grid = Grid(rows: 10, cols: 30)
 grid.randomize()
 draw(grid)
