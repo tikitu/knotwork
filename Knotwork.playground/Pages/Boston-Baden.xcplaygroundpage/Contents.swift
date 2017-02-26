@@ -182,13 +182,13 @@ struct AntiGrid {
     }
     
     public mutating func addBorders() {
-        breaklines[0] = [BreakLine](repeating: .h, count: self.cols)
-        breaklines[breaklines.count - 1] = [BreakLine](repeating: .h, count: self.cols)
-        for longRowIndex in stride(from: 1, to: breaklines.count, by: 2) {
-            var row = breaklines[longRowIndex]
-            row[0] = .v
-            row[row.count - 1] = .v
-            breaklines[longRowIndex] = row
+        for x in 0...cols * 2 {
+            addEdge(.h, x: x, y: 0)
+            addEdge(.h, x: x, y: rows * 2)
+        }
+        for y in 0...rows * 2 {
+            addEdge(.v, x: 0, y: y)
+            addEdge(.v, x: cols * 2, y: y)
         }
     }
     
@@ -226,6 +226,8 @@ grid.addEdge(.h, x: 8, y: 7)
 grid.addEdge(.h, x: 11, y: 8)
 grid.addEdge(.v, x: 12, y: 7)
 grid.addEdge(.v, x: 12, y: 5)
+grid.addEdge(.h, x: 5, y: 14)
+grid.addBorders()
 draw(grid.grid(inverted: true))
 
 //: [Next](@next)
