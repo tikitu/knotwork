@@ -192,7 +192,7 @@ struct AntiGrid {
     public mutating func addEdge(_ line: BreakLine, x: Int, y: Int) {
         guard (0...cols * 2).contains(x), (0...rows * 2).contains(y) else { return }
         guard (x + y) % 2 == 1 else { return }
-        breaklines[y][x / 2] = line
+        toggle(line, x: x, y: y)
     }
 
     public mutating func addEdge(_ line: BreakLine, x: Int, y: Int, length: Int) {
@@ -211,6 +211,22 @@ struct AntiGrid {
         case .h: new = .v
         case .v: new = .o
         case .o: new = .h
+        }
+        breaklines[y][x / 2] = new
+    }
+    
+    private mutating func toggle(_ line: BreakLine, x: Int, y: Int) {
+        let current = breaklines[y][x / 2]
+        let new: BreakLine
+        switch (line, current) {
+        case (.h, .h), (.v, .v): new = .o
+        case (.h, _): new = .h
+        case (.v, _): new = .v
+        /*case (.h, .h), (.v, .o): new = .v
+        case (.h, .v), (.v, .h): new = .o
+        case (.h, .o), (.v, .v): new = .h */
+        default:
+            new = current
         }
         breaklines[y][x / 2] = new
     }
