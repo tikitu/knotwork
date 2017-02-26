@@ -17,7 +17,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         let screenSize = UIScreen.main.bounds
         window = UIWindow(frame: screenSize)
-        let vc = ViewController(in: screenSize.size)
+        let sizeWithoutTabBar = CGSize(width: screenSize.width - 40, height: screenSize.height - 64 - 40)
+        print(sizeWithoutTabBar)
+        let vc = ViewController(in: sizeWithoutTabBar)
         vc.title = "Knotwork"
         let nav = UINavigationController(rootViewController: vc)
         window?.rootViewController = nav

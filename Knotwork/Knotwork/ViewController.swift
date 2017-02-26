@@ -17,6 +17,10 @@ final class ViewController: UIViewController {
         grid = AntiGrid(rows: rows, cols: cols)
         super.init(nibName: nil, bundle: nil)
     }
+
+    override var shouldAutorotate: Bool {
+        return false
+    }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -26,7 +30,11 @@ final class ViewController: UIViewController {
     let canvas = Canvas()
     
     override func loadView() {
+        grid.addBorders()
         knot.image = draw(grid.grid())
+        
+        knot.contentMode = .topLeft
+        canvas.contentMode = .topLeft
         
         canvas.cut = self.cut
         canvas.toggle = self.toggle
@@ -37,8 +45,13 @@ final class ViewController: UIViewController {
         canvas.translatesAutoresizingMaskIntoConstraints = false
         knot.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|[c]|", options: [], metrics: nil, views: ["c": canvas]))
         knot.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|[c]|", options: [], metrics: nil, views: ["c": canvas]))
+        let view = UIView()
+        view.addSubview(knot)
+        knot.translatesAutoresizingMaskIntoConstraints = false
+        view.addConstraint(NSLayoutConstraint(item: knot, attribute: .centerX, relatedBy: .equal, toItem: view, attribute: .centerX, multiplier: 1, constant: 0))
+        view.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-84-[k]-20-|", options: [], metrics: nil, views: ["k": knot]))
         
-        self.view = knot
+        self.view = view
     }
     
     func cut(from start: CGPoint, to end: CGPoint) {
@@ -52,6 +65,12 @@ final class ViewController: UIViewController {
     func toggle(point: CGPoint) {
         grid.toggle(x: Int(point.x), y: Int(point.y))
         knot.image = draw(grid.grid())
+    }
+}
+
+extension UINavigationController {
+    open override var shouldAutorotate: Bool {
+        return false
     }
 }
 
