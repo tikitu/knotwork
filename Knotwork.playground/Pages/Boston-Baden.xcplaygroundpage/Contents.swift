@@ -81,36 +81,6 @@ let antigrid: [[BreakLine]] = [
     [.h, .h, .h, .h],
 ]
 
-enum Edge {
-    case n, s, w, e
-}
-
-func edges(x: Int, y: Int) -> Set<Edge> {
-    let odd = y % 2 == 1
-    let above = antigrid[y][(x + (odd ? 1 : 0)) / 2]
-    let below = antigrid[y+1][(x + (odd ? 0 : 1)) / 2]
-    var edges = Set<Edge>()
-    switch above {
-    case .h:
-        edges.insert(.n)
-    case .v:
-        edges.insert((x + y) % 2 == 0 ? .e : .w)
-    case .o:
-        break
-    }
-    switch below {
-    case .h:
-        edges.insert(.s)
-    case .v:
-        edges.insert((x + y) % 2 == 0 ? .w : .e)
-    case .o:
-        break
-    }
-    return edges
-}
-
-edges(x: 7, y: 5)
-
 func lookup(_ cell: BaseTile, with edges: Set<Edge>) -> Tile {
     switch edges {
     case [.n, .w]: return .n
@@ -158,18 +128,60 @@ func lookup(_ cell: BaseTile, with edges: Set<Edge>) -> Tile {
     }
 }
 
-var newGrid: [[Tile]] = []
-
-for y in 0..<6 {
-    var row = [Tile]()
-    for x in 0..<8 {
-        let c = base(x: x, y: y, inverted: true)
-        let cell = lookup(c, with: edges(x: x, y: y))
-        row.append(cell)
+struct AntiGrid {
+    private var breaklines: [[BreakLine]]
+    private var rows: Int
+    private var cols: Int
+    public init(rows: Int, cols: Int) {
+        precondition(rows > 0)
+        precondition(cols > 0)
+        var breaklines = [[BreakLine]]()
+        for _ in 0..<rows {
+            breaklines.append([BreakLine](repeating: .o, count: cols * 2))
+            breaklines.append([BreakLine](repeating: .o, count: cols * 2 + 1))
+        }
+        breaklines.append([BreakLine](repeating: .o, count: cols * 2))
+        self.breaklines = breaklines
+        self.rows = rows * 2
+        self.cols = cols * 2
     }
-    newGrid.append(row)
+    
+    private func edges(x: Int, y: Int) -> Set<Edge> {
+        let odd = y % 2 == 1
+        let above = breaklines[y][(x + (odd ? 1 : 0)) / 2]
+        let below = breaklines[y+1][(x + (odd ? 0 : 1)) / 2]
+        var edges = Set<Edge>()
+        switch above {
+        case .h:
+            edges.insert(.n)
+        case .v:
+            edges.insert((x + y) % 2 == 0 ? .e : .w)
+        case .o:
+            break
+        }
+        switch below {
+        case .h:
+            edges.insert(.s)
+        case .v:
+            edges.insert((x + y) % 2 == 0 ? .w : .e)
+        case .o:
+            break
+        }
+        return edges
+    }
+
+    public func grid(inverted: Bool = false) -> [[Tile]] {
+        return (0..<rows).map { y in
+            (0..<cols).map { x in lookup(base(x: x, y: y, inverted: inverted), with: edges(x: x, y: y)) }
+        }
+    }
+
 }
 
-draw(newGrid)
+enum Edge {
+    case n, s, w, e
+}
+
+draw(AntiGrid(rows: 3, cols: 4).grid(inverted: true))
 
 //: [Next](@next)
