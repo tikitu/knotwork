@@ -136,6 +136,7 @@ func lookup(_ cell: BaseTile, with edges: Set<Edge>) -> Tile {
 
 struct AntiGrid {
     fileprivate var breaklines: [[BreakLine]]
+    fileprivate var empty: [[Bool]]
     private var rows: Int
     private var cols: Int
     public init(rows: Int, cols: Int) {
@@ -150,6 +151,7 @@ struct AntiGrid {
         self.breaklines = breaklines
         self.rows = rows
         self.cols = cols
+        self.empty = [[Bool]](repeating: [Bool](repeating: false, count: cols * 2), count: rows * 2)
     }
     
     private func edges(x: Int, y: Int) -> Set<Edge> {
@@ -172,6 +174,21 @@ struct AntiGrid {
             edges.insert((x + y) % 2 == 0 ? .w : .e)
         case .o:
             break
+        }
+        if empty[(y - 1)/2][x / 2] {
+            edges.insert(.n)
+        }
+        if empty[y / 2][(x - 1) / 2] {
+            edges.insert(.w)
+        }
+        if empty[(y + 1) / 2][x / 2] {
+            edges.insert(.s)
+        }
+        if empty[y / 2][(x + 1)/2] {
+            edges.insert(.e)
+        }
+        if empty[y / 2][x / 2] {
+            edges.formUnion([.n, .s, .w, .e])
         }
         return edges
     }
@@ -204,7 +221,12 @@ struct AntiGrid {
     
     public mutating func toggle(x: Int, y: Int) {
         guard (0...cols * 2).contains(x), (0...rows * 2).contains(y) else { return }
-        guard (x + y) % 2 == 1 else { return }
+        guard (x + y) % 2 == 1 else {
+            if x % 2 == 1 && y % 2 == 1 {
+                empty[y / 2][x / 2] = !empty[y / 2][x / 2]
+            }
+            return
+        }
         let current = breaklines[y][x / 2]
         let new: BreakLine
         switch current {
@@ -222,9 +244,6 @@ struct AntiGrid {
         case (.h, .h), (.v, .v): new = .o
         case (.h, _): new = .h
         case (.v, _): new = .v
-        /*case (.h, .h), (.v, .o): new = .v
-        case (.h, .v), (.v, .h): new = .o
-        case (.h, .o), (.v, .v): new = .h */
         default:
             new = current
         }
@@ -370,7 +389,7 @@ private func setup(_ controller: UIViewController, with actions: [UIBarButtonIte
     PlaygroundPage.current.liveView = w
 }
 
-let size = CGSize.iphone4
+let size = CGSize.iphone4.landscape
 let controller = Controller(in: size)
 setup(controller, with: [], in: size)
 
