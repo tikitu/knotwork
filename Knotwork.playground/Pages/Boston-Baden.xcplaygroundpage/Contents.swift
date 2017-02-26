@@ -134,7 +134,7 @@ func lookup(_ cell: BaseTile, with edges: Set<Edge>) -> Tile {
 }
 
 struct AntiGrid {
-    private var breaklines: [[BreakLine]]
+    fileprivate var breaklines: [[BreakLine]]
     private var rows: Int
     private var cols: Int
     public init(rows: Int, cols: Int) {
@@ -191,6 +191,12 @@ struct AntiGrid {
             breaklines[longRowIndex] = row
         }
     }
+    
+    public mutating func addEdge(_ line: BreakLine, x: Int, y: Int) {
+        guard (0...cols * 2).contains(x), (0...rows * 2).contains(y) else { return }
+        guard (x + y) % 2 == 1 else { return }
+        breaklines[y][x / 2] = line
+    }
 
 }
 
@@ -199,7 +205,27 @@ enum Edge {
 }
 
 var grid = AntiGrid(rows: 4, cols: 6)
-grid.addBorders()
+grid.addEdge(.h, x: 1, y: 0)
+grid.addEdge(.h, x: 2, y: 0)
+grid.addEdge(.h, x: 3, y: 0)
+grid.addEdge(.h, x: 0, y: 1)
+grid.addEdge(.h, x: 1, y: 1)
+grid.addEdge(.h, x: 2, y: 1)
+grid.addEdge(.h, x: 0, y: 2)
+grid.addEdge(.h, x: 1, y: 2)
+grid.addEdge(.h, x: 2, y: 2)
+grid.addEdge(.h, x: 3, y: 2)
+grid.addEdge(.v, x: 0, y: 0)
+grid.addEdge(.v, x: 0, y: 1)
+grid.addEdge(.v, x: 0, y: 2)
+grid.addEdge(.v, x: 0, y: 3)
+grid.addEdge(.v, x: 1, y: 0)
+grid.addEdge(.v, x: 1, y: 1)
+grid.addEdge(.v, x: 1, y: 2)
+grid.addEdge(.h, x: 8, y: 7)
+grid.addEdge(.h, x: 11, y: 8)
+grid.addEdge(.v, x: 12, y: 7)
+grid.addEdge(.v, x: 12, y: 5)
 draw(grid.grid(inverted: true))
 
 //: [Next](@next)
