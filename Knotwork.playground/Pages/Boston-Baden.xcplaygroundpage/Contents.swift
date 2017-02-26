@@ -182,14 +182,10 @@ struct AntiGrid {
     }
     
     public mutating func addBorders() {
-        for x in 0...cols * 2 {
-            addEdge(.h, x: x, y: 0)
-            addEdge(.h, x: x, y: rows * 2)
-        }
-        for y in 0...rows * 2 {
-            addEdge(.v, x: 0, y: y)
-            addEdge(.v, x: cols * 2, y: y)
-        }
+        addEdge(.h, x: 0, y: 0, length: cols * 2)
+        addEdge(.h, x: 0, y: rows * 2, length: cols * 2)
+        addEdge(.v, x: 0, y: 0, length: rows * 2)
+        addEdge(.v, x: cols * 2, y: 0, length: rows * 2)
     }
     
     public mutating func addEdge(_ line: BreakLine, x: Int, y: Int) {
@@ -198,6 +194,12 @@ struct AntiGrid {
         breaklines[y][x / 2] = line
     }
 
+    public mutating func addEdge(_ line: BreakLine, x: Int, y: Int, length: Int) {
+        guard length > 0 else { return }
+        for i in 0..<length {
+            addEdge(line, x: x + (line == .h ? i : 0), y: y + (line == .v ? i : 0))
+        }
+    }
 }
 
 enum Edge {
@@ -205,29 +207,11 @@ enum Edge {
 }
 
 var grid = AntiGrid(rows: 4, cols: 6)
-grid.addEdge(.h, x: 1, y: 0)
-grid.addEdge(.h, x: 2, y: 0)
-grid.addEdge(.h, x: 3, y: 0)
-grid.addEdge(.h, x: 0, y: 1)
-grid.addEdge(.h, x: 1, y: 1)
-grid.addEdge(.h, x: 2, y: 1)
-grid.addEdge(.h, x: 0, y: 2)
-grid.addEdge(.h, x: 1, y: 2)
-grid.addEdge(.h, x: 2, y: 2)
-grid.addEdge(.h, x: 3, y: 2)
-grid.addEdge(.v, x: 0, y: 0)
-grid.addEdge(.v, x: 0, y: 1)
-grid.addEdge(.v, x: 0, y: 2)
-grid.addEdge(.v, x: 0, y: 3)
-grid.addEdge(.v, x: 1, y: 0)
-grid.addEdge(.v, x: 1, y: 1)
-grid.addEdge(.v, x: 1, y: 2)
-grid.addEdge(.h, x: 8, y: 7)
-grid.addEdge(.h, x: 11, y: 8)
-grid.addEdge(.v, x: 12, y: 7)
-grid.addEdge(.v, x: 12, y: 5)
-grid.addEdge(.h, x: 5, y: 14)
 grid.addBorders()
-draw(grid.grid(inverted: true))
+grid.addEdge(.h, x: 1, y: 1, length: 10)
+grid.addEdge(.h, x: 1, y: 7, length: 10)
+grid.addEdge(.v, x: 1, y: 1, length: 6)
+grid.addEdge(.v, x: 11, y: 1, length: 6)
+draw(grid.grid(inverted: false))
 
 //: [Next](@next)
