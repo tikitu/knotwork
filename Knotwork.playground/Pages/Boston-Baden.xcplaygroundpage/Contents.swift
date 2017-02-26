@@ -193,7 +193,7 @@ enum Edge {
     case n, s, w, e
 }
 
-var grid = AntiGrid(rows: 3, cols: 4)
+var grid = AntiGrid(rows: 4, cols: 6)
 grid.addBorders()
 draw(grid.grid(inverted: true))
 
