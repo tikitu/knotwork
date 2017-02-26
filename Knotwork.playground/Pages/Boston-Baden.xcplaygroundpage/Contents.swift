@@ -3,6 +3,11 @@
 import Foundation
 import UIKit
 
+// This implementation is very heavily based on Chaz Boston Baden's page
+//    http://www.boston-baden.com/hazel/Knotware3/
+// (so much so that I added his tile gifs directly to the project).
+// Used with permission.
+
 struct Grid {
     let width: Int
     let height: Int
