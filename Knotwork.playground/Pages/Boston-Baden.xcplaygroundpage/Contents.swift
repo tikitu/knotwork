@@ -238,6 +238,7 @@ final class Canvas: UIImageView {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first?.location(in: self) else { return }
         start = CGPoint(x: round(touch.x / 20) * 20, y: round(touch.y / 20) * 20)
+        end = start
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -267,6 +268,10 @@ final class Canvas: UIImageView {
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        defer {
+            start = nil
+            end = nil
+        }
         guard let start = start,
             let end = end else {
             self.image = UIImage()
