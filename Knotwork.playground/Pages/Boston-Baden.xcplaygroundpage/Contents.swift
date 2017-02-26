@@ -137,13 +137,13 @@ struct AntiGrid {
         precondition(cols > 0)
         var breaklines = [[BreakLine]]()
         for _ in 0..<rows {
-            breaklines.append([BreakLine](repeating: .o, count: cols * 2))
-            breaklines.append([BreakLine](repeating: .o, count: cols * 2 + 1))
+            breaklines.append([BreakLine](repeating: .o, count: cols))
+            breaklines.append([BreakLine](repeating: .o, count: cols + 1))
         }
         breaklines.append([BreakLine](repeating: .o, count: cols * 2))
         self.breaklines = breaklines
-        self.rows = rows * 2
-        self.cols = cols * 2
+        self.rows = rows
+        self.cols = cols
     }
     
     private func edges(x: Int, y: Int) -> Set<Edge> {
@@ -171,8 +171,19 @@ struct AntiGrid {
     }
 
     public func grid(inverted: Bool = false) -> [[Tile]] {
-        return (0..<rows).map { y in
-            (0..<cols).map { x in lookup(base(x: x, y: y, inverted: inverted), with: edges(x: x, y: y)) }
+        return (0..<rows * 2).map { y in
+            (0..<cols * 2).map { x in lookup(base(x: x, y: y, inverted: inverted), with: edges(x: x, y: y)) }
+        }
+    }
+    
+    public mutating func addBorders() {
+        breaklines[0] = [BreakLine](repeating: .h, count: self.cols)
+        breaklines[breaklines.count - 1] = [BreakLine](repeating: .h, count: self.cols)
+        for longRowIndex in stride(from: 1, to: breaklines.count, by: 2) {
+            var row = breaklines[longRowIndex]
+            row[0] = .v
+            row[row.count - 1] = .v
+            breaklines[longRowIndex] = row
         }
     }
 
@@ -182,6 +193,8 @@ enum Edge {
     case n, s, w, e
 }
 
-draw(AntiGrid(rows: 3, cols: 4).grid(inverted: true))
+var grid = AntiGrid(rows: 3, cols: 4)
+grid.addBorders()
+draw(grid.grid(inverted: true))
 
 //: [Next](@next)
