@@ -10,6 +10,10 @@ struct Grid {
 
 let g = Grid(width: 5, height: 4)
 
+enum BaseTile {
+    case l, w, u, i
+}
+
 enum Tile: String {
     case a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, empty = "@"
 
@@ -44,20 +48,7 @@ func draw(_ grid: [[Tile]]) -> UIImage {
 
 draw(aGrid)
 
-var grid: [[Tile]] = [
-    [.l, .w, .l, .w, .l, .w, .l, .w],
-    [.u, .i, .u, .i, .u, .i, .u, .i],
-    [.l, .w, .l, .w, .l, .w, .l, .w],
-    [.u, .i, .u, .i, .u, .i, .u, .i],
-    [.l, .w, .l, .w, .l, .w, .l, .w],
-    [.u, .i, .u, .i, .u, .i, .u, .i],
-]
-
-let base = grid
-
-draw(grid)
-
-func base(x: Int, y: Int, inverted: Bool) -> Tile {
+func base(x: Int, y: Int, inverted: Bool) -> BaseTile {
     let evenX = x % 2 == 0
     let evenY = y % 2 == 0
     if inverted {
@@ -75,50 +66,6 @@ func base(x: Int, y: Int, inverted: Bool) -> Tile {
     }
 }
 
-func topBottom(cell: Tile) -> Tile {
-    switch cell {
-    case .l: return .o
-    case .w: return .v
-    case .u: return .s
-    case .i: return .j
-    default:
-        return cell
-    }
-}
-
-grid[0] = grid.first!.map(topBottom)
-grid[grid.count - 1] = grid.last!.map(topBottom)
-
-draw(grid)
-
-func leftRight(_ cell: Tile) -> Tile {
-    switch cell {
-    case .l: return .k
-    case .u: return .b
-    case .w: return .y
-    case .i: return .f
-    default:
-        return cell
-    }
-}
-
-func leftRight(row: [Tile]) -> [Tile] {
-    var row = row
-    row[0] = leftRight(row[0])
-    row[row.count - 1] = leftRight(row.last!)
-    return row
-}
-
-grid = grid.map(leftRight)
-
-draw(grid)
-
-grid[0][0] = .n
-grid[0][grid[0].count - 1] = .x
-grid[grid.count - 1][0] = .a
-grid[grid.count - 1][grid[0].count - 1] = .g
-
-draw(grid)
 
 enum BreakLine {
     case h, v, o
@@ -164,9 +111,8 @@ func edges(x: Int, y: Int) -> Set<Edge> {
 
 edges(x: 7, y: 5)
 
-func lookup(_ cell: Tile, with edges: Set<Edge>) -> Tile {
+func lookup(_ cell: BaseTile, with edges: Set<Edge>) -> Tile {
     switch edges {
-    case []: return cell
     case [.n, .w]: return .n
     case [.n, .e]: return .x
     case [.s, .w]: return .a
@@ -179,8 +125,6 @@ func lookup(_ cell: Tile, with edges: Set<Edge>) -> Tile {
         case .w: return .v
         case .i: return .p
         case .u: return .t
-        default:
-            fatalError()
         }
     case [.s]:
         switch cell {
@@ -188,8 +132,6 @@ func lookup(_ cell: Tile, with edges: Set<Edge>) -> Tile {
         case .i: return .j
         case .w: return .r
         case .l: return .m
-        default:
-            fatalError()
         }
     case [.w]:
         switch cell {
@@ -197,8 +139,6 @@ func lookup(_ cell: Tile, with edges: Set<Edge>) -> Tile {
         case .w: return .c
         case .u: return .b
         case .i: return .h
-        default:
-            fatalError()
         }
     case [.e]:
         switch cell {
@@ -206,24 +146,20 @@ func lookup(_ cell: Tile, with edges: Set<Edge>) -> Tile {
         case .w: return .y
         case .u: return .z
         case .i: return .f
-        default:
-            fatalError()
+        }
+    case []:
+        switch cell {
+        case .u: return .u
+        case .i: return .i
+        case .l: return .l
+        case .w: return .w
         }
     default: return .empty
     }
 }
 
 var newGrid: [[Tile]] = []
-for (y, row) in base.enumerated() {
-    var newRow = [Tile]()
-    for (x, cell) in row.enumerated() {
-        let newCell = lookup(cell, with: edges(x: x, y: y))
-        newRow.append(newCell)
-    }
-    newGrid.append(newRow)
-}
 
-newGrid = []
 for y in 0..<6 {
     var row = [Tile]()
     for x in 0..<8 {
