@@ -57,6 +57,24 @@ let base = grid
 
 draw(grid)
 
+func base(x: Int, y: Int, inverted: Bool) -> Tile {
+    let evenX = x % 2 == 0
+    let evenY = y % 2 == 0
+    if inverted {
+        if evenY {
+            return evenX ? .i : .u
+        } else {
+            return evenX ? .w : .l
+        }
+    } else {
+        if evenY {
+            return evenX ? .l : .w
+        } else {
+            return evenX ? .u : .i
+        }
+    }
+}
+
 func topBottom(cell: Tile) -> Tile {
     switch cell {
     case .l: return .o
@@ -203,6 +221,17 @@ for (y, row) in base.enumerated() {
         newRow.append(newCell)
     }
     newGrid.append(newRow)
+}
+
+newGrid = []
+for y in 0..<6 {
+    var row = [Tile]()
+    for x in 0..<8 {
+        let c = base(x: x, y: y, inverted: true)
+        let cell = lookup(c, with: edges(x: x, y: y))
+        row.append(cell)
+    }
+    newGrid.append(row)
 }
 
 draw(newGrid)
