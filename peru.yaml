@@ -1,0 +1,32 @@
+# Conventions taken from app-tooling; see
+# docs/app-tooling/pattern-imports/README.md.
+imports:
+    app-tooling|pattern-imports: ./
+    app-tooling|pattern-imports-docs: docs/app-tooling/pattern-imports/
+    app-tooling|git-commit-stamp: ./
+    app-tooling|git-commit-stamp-docs: docs/app-tooling/git-commit-stamp/
+    app-tooling|build-warnings: ./
+    app-tooling|build-warnings-docs: docs/app-tooling/build-warnings/
+
+git module app-tooling:
+    url: https://github.com/tikitu/app-tooling
+    reup: v0.5.1
+    rev: 5d0ad4bb96304d713316daba0183839a3ce64d86
+
+rule pattern-imports:
+    export: patterns/pattern-imports/files
+rule pattern-imports-docs:
+    pick: [patterns/pattern-imports/README.md, patterns/pattern-imports/apply.md, patterns/pattern-imports/CHANGELOG.md]
+    export: patterns/pattern-imports
+
+rule git-commit-stamp:
+    export: patterns/git-commit-stamp/files
+rule git-commit-stamp-docs:
+    pick: [patterns/git-commit-stamp/README.md, patterns/git-commit-stamp/apply.md, patterns/git-commit-stamp/CHANGELOG.md]
+    export: patterns/git-commit-stamp
+
+rule build-warnings:
+    export: patterns/build-warnings/files
+rule build-warnings-docs:
+    pick: [patterns/build-warnings/README.md, patterns/build-warnings/apply.md, patterns/build-warnings/CHANGELOG.md]
+    export: patterns/build-warnings

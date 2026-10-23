@@ -1,0 +1,82 @@
+# The Xcode-shaped part of the project, and deliberately the smallest part.
+#
+# The app target exists here only because SwiftPM cannot express an iOS app
+# bundle. It is a forwarding shell over KnotworkIOS, in
+# ../../Packages/KnotworkIOSKit: if you are adding logic, add it there.
+#
+# Regenerate with `make ios-project`. Knotwork.xcodeproj, and the Info.plist
+# generated from `info:` below, are git-ignored: edit this file, never them.
+name: Knotwork
+
+options:
+  bundleIdPrefix: org.logophile
+  deploymentTarget:
+    iOS: "26.0"
+  createIntermediateGroups: true
+
+packages:
+  KnotworkIOSKit:
+    path: ../../Packages/KnotworkIOSKit
+
+settings:
+  base:
+    # Xcode's App Intents step only warns here: there are none
+    # (app-tooling: build-warnings, which fails `make` if one is added).
+    LM_SKIP_METADATA_EXTRACTION: YES
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    # Spelled out, not defaulted: new Xcode templates make this MainActor,
+    # and code here opts *in* to @MainActor instead. Matches the packages'
+    # `.defaultIsolation(nil)`.
+    SWIFT_DEFAULT_ACTOR_ISOLATION: nonisolated
+    CODE_SIGN_STYLE: Automatic
+    # Needed for device builds; simulator builds ignore it. The personal
+    # team, as in the project this replaced.
+    DEVELOPMENT_TEAM: 27M4U3J9M6
+
+targets:
+  Knotwork:
+    type: application
+    platform: iOS
+    sources:
+      - path: App
+    dependencies:
+      - package: KnotworkIOSKit
+        product: KnotworkIOS
+    # Record the commit in the built app (app-tooling: git-commit-stamp).
+    # On the built plist, after Xcode has written it and before signing.
+    postBuildScripts:
+      - name: Stamp git commit
+        script: '"$SRCROOT/../../scripts/stamp-git-commit.sh" --bundle-version "$TARGET_BUILD_DIR/$INFOPLIST_PATH"'
+        inputFiles:
+          - $(TARGET_BUILD_DIR)/$(INFOPLIST_PATH)
+        basedOnDependencyAnalysis: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.logophile.Knotwork
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: App/Info.plist
+        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: 1.0
+        # iPhone and iPad: the knot fills whatever space it is given.
+        TARGETED_DEVICE_FAMILY: "1,2"
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: Knotwork
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        UILaunchScreen: {}
+        # One window: there is one knot, held by the app delegate's model,
+        # and two windows would both be editing it.
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        # All four. Required because TARGETED_DEVICE_FAMILY includes iPad, and
+        # an iPad app that does not set UIRequiresFullScreen must support every
+        # orientation — a build warning otherwise. The knot is drawn smaller
+        # when a rotation leaves it less room.
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight

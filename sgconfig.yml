@@ -1,0 +1,5 @@
+# ast-grep: the rules in rules/, each beside the document that explains it,
+# and their tests in rule-tests/. See rules/README.md.
+ruleDirs: [rules]
+testConfigs:
+  - testDir: rule-tests

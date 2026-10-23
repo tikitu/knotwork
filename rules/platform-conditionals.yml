@@ -1,0 +1,10 @@
+id: platform-conditionals
+language: swift
+severity: error
+message: "Platform code goes in its platform's package, not behind #if os/canImport/targetEnvironment."
+note: |
+  KnotworkKit is shared (compiled for macOS and iOS by `make check`); KnotworkIOSKit is iOS only.
+  Read rules/platform-conditionals.md before working around this.
+rule:
+  kind: directive
+  regex: '^#(if|elseif)\b.*\b(os|canImport|targetEnvironment)\s*\('

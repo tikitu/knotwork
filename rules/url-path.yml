@@ -1,0 +1,9 @@
+id: url-path
+language: swift
+severity: error
+message: "URL.path() keeps the percent-encoding: \"Application Support\" becomes \"Application%20Support\"."
+note: |
+  Use path(percentEncoded: false) for a filesystem path.
+  Read rules/url-path.md before working around this.
+rule:
+  pattern: $URL.path()

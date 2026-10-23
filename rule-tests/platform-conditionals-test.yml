@@ -1,0 +1,8 @@
+id: platform-conditionals
+valid:
+  - "#if DEBUG\nlet c = 3\n#endif"
+  - "// #if os(macOS), in a comment"
+invalid:
+  - "#if os(macOS)\nlet a = 1\n#endif"
+  - "#if true\n#elseif canImport(UIKit)\nlet b = 2\n#endif"
+  - "#if targetEnvironment(simulator)\n#endif"

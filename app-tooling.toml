@@ -1,0 +1,35 @@
+# Conventions this project takes from app-tooling, beyond what peru.yaml
+# records. docs/app-tooling/pattern-imports/README.md explains this file.
+
+[patterns.pattern-imports]
+
+# The iOS half: the build phase in apps/ios/project.yml, and
+# `make ios-device-which`. There is no Mac app, so no build.sh stamp.
+[patterns.git-commit-stamp]
+params = { ios_target = "Knotwork" }
+
+# LM_SKIP_METADATA_EXTRACTION project-wide in apps/ios/project.yml, and on the
+# package-scheme xcodebuild in `make check`: there are no App Intents. Part 1
+# (OMIT_DYNAMIC_TEST_SUPPORT) changes nothing yet, with no dependencies.
+[patterns.build-warnings]
+
+[declined.testflight]
+as_of = "v0.5.1"
+reason = """not yet: needs the owner's answers (export compliance, which devices get builds \
+only through TestFlight) and an app record in App Store Connect"""
+
+[declined.scratch-data]
+as_of = "v0.5.1"
+reason = "nothing is stored; the command inbox is gated by --accept-commands (docs/commands.md)"
+
+[declined.sync-configuration]
+as_of = "v0.5.1"
+reason = "no iCloud: nothing is stored or shared"
+
+[declined.instruments-profiling]
+as_of = "v0.5.1"
+reason = "Mac-only, and there is no Mac app yet"
+
+[declined.privileged-helper]
+as_of = "v0.5.1"
+reason = "nothing needs root"

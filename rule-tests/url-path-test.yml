@@ -1,0 +1,5 @@
+id: url-path
+valid:
+  - "let p = url.path(percentEncoded: false)"
+invalid:
+  - "let p = url.path()"
