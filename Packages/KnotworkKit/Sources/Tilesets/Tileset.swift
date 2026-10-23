@@ -77,7 +77,7 @@ public enum Tileset: String, CaseIterable, Sendable {
     }
 
     /// The colour under the strands.
-    var ground: CGColor {
+    public var ground: CGColor {
         switch self {
         case .smooth: SmoothTiles.ground
         case .sketch: SketchTiles.paper

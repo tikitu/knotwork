@@ -60,6 +60,8 @@ targets:
         MARKETING_VERSION: 1.0
         # iPhone and iPad: the knot fills whatever space it is given.
         TARGETED_DEVICE_FAMILY: "1,2"
+        # App/Assets.xcassets; its one image comes from `make app-icon`.
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     info:
       path: App/Info.plist
       properties:

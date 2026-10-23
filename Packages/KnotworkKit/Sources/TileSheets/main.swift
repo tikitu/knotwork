@@ -1,9 +1,11 @@
 // Renders every tileset to PNG, beside Boston-Baden's original images, for
-// comparing them: each tile on its own, and knots made of them.
+// comparing them: each tile on its own, and knots made of them. And the app's
+// icon.
 //
 //     swift run --package-path Packages/KnotworkKit TileSheets <original GIFs> <output directory>
+//     swift run --package-path Packages/KnotworkKit TileSheets --icon <PNG>
 //
-// `make tile-sheets` runs it with the paths filled in.
+// `make tile-sheets` and `make app-icon` run them with the paths filled in.
 
 import Core
 import CoreGraphics
@@ -26,9 +28,19 @@ struct Style {
 }
 
 let arguments = CommandLine.arguments
+if arguments.count == 3, arguments[1] == "--icon" {
+    try renderIcon(to: URL(filePath: arguments[2]))
+    print(arguments[2])
+    exit(0)
+}
 guard arguments.count == 3 else {
     FileHandle.standardError.write(
-        Data("usage: TileSheets <original GIFs> <output directory>\n".utf8))
+        Data(
+            """
+            usage: TileSheets <original GIFs> <output directory>
+                   TileSheets --icon <PNG>
+
+            """.utf8))
     exit(64)
 }
 let originals = URL(filePath: arguments[1], directoryHint: .isDirectory)
@@ -161,12 +173,17 @@ struct Sheet {
 
 /// Renders `size` points at `scale` pixels to the point, y running down, to
 /// a PNG at `url`.
-func render(to url: URL, size: CGSize, scale: CGFloat = 2, drawing: (CGContext) -> Void) throws {
+func render(
+    to url: URL, size: CGSize, scale: CGFloat = 2, isOpaque: Bool = false,
+    drawing: (CGContext) -> Void
+) throws {
+    // An app icon may have no alpha channel at all, opaque or not.
+    let alpha = isOpaque ? CGImageAlphaInfo.noneSkipLast : .premultipliedLast
     guard
         let context = CGContext(
             data: nil, width: Int(size.width * scale), height: Int(size.height * scale),
             bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpace(name: CGColorSpace.sRGB)!,
-            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+            bitmapInfo: alpha.rawValue)
     else { throw CocoaError(.fileWriteUnknown) }
     context.translateBy(x: 0, y: size.height * scale)
     context.scaleBy(x: scale, y: -scale)
@@ -179,6 +196,25 @@ func render(to url: URL, size: CGSize, scale: CGFloat = 2, drawing: (CGContext) 
     else { throw CocoaError(.fileWriteUnknown) }
     CGImageDestinationAddImage(destination, image, nil)
     guard CGImageDestinationFinalize(destination) else { throw CocoaError(.fileWriteUnknown) }
+}
+
+// MARK: - The app icon
+
+/// The app's icon, 1024 pixels square: a bordered knot of 2 × 2 cells in the
+/// smooth tileset. Square and opaque: the system rounds the corners.
+func renderIcon(to url: URL) throws {
+    var grid = AntiGrid(rows: 2, cols: 2)
+    grid.addBorders()
+    let side: CGFloat = 1024
+    let margin: CGFloat = 132
+    try render(to: url, size: CGSize(width: side, height: side), scale: 1, isOpaque: true) {
+        context in
+        context.setFillColor(Tileset.smooth.ground)
+        context.fill(CGRect(x: 0, y: 0, width: side, height: side))
+        Tileset.smooth.draw(
+            grid.tiles(), in: context, origin: CGPoint(x: margin, y: margin),
+            tileSide: (side - 2 * margin) / 4)
+    }
 }
 
 // MARK: - Output

@@ -42,7 +42,7 @@ include mk/app-tooling.mk
 # (app-tooling: build-warnings). docs/app-tooling/build-warnings/.
 include mk/build-warnings.mk
 
-.PHONY: all help check test tile-sheets fmt fmt-check rules lint clean \
+.PHONY: all help check test tile-sheets app-icon fmt fmt-check rules lint clean \
         ios-project ios-build ios-run ios-run-commands ios-screenshot \
         ios-device-build ios-device-run ios-device-which ios-clean
 
@@ -53,6 +53,7 @@ help:
 	@echo "  check             Compile the shared package for macOS and iOS; the fast gate"
 	@echo "  test              Run the shared package's tests, on the Mac"
 	@echo "  tile-sheets       Render every tileset beside the original images, to build/tilesets/"
+	@echo "  app-icon          Regenerate the app's icon ($(APP_ICON))"
 	@echo "  clean             Remove build/ and the packages' .build/"
 	@echo ""
 	@echo "iOS:"
@@ -114,6 +115,12 @@ test:
 # on its own, and some knots made of them.
 tile-sheets:
 	swift run --package-path $(SHARED) TileSheets $(SHARED)/Sources/UI/Resources/Tiles build/tilesets
+
+# The app's icon is drawn by the same code as the tiles; committed, so a build
+# needs no step of its own. Run this after changing how the tiles look.
+APP_ICON := $(IOS_DIR)/App/Assets.xcassets/AppIcon.appiconset/AppIcon.png
+app-icon:
+	swift run --package-path $(SHARED) TileSheets --icon $(APP_ICON)
 
 clean:
 	rm -rf build $(SHARED)/.build $(IOS_PACKAGE)/.build
