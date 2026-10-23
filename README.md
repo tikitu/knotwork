@@ -42,7 +42,12 @@ To work in Xcode: `make ios-project`, then open `apps/ios/Knotwork.xcodeproj`.
 
 ```
 Packages/KnotworkKit/      shared: macOS and iOS, tested on the Mac
-  Core            the knot: break lines, and the tiles they make
+  Core            the knot: break lines, the tiles they make, and the
+                  strand each tile shows
+  Tilesets        the tiles drawn in code (CoreGraphics), in more than one
+                  style; not used by the app yet
+  TileSheets      `make tile-sheets`: every tileset beside the original
+                  images, as PNGs in build/tilesets/
   UI              AppModel, AppCommand, the command inbox, the knot view
 Packages/KnotworkIOSKit/   iOS only: the root view and the app delegate
 apps/ios/                  project.yml (XcodeGen) and the app target, a

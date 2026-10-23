@@ -20,10 +20,20 @@ let shared: [SwiftSetting] = [.swiftLanguageMode(.v6), .defaultIsolation(nil)]
 // No dependencies yet: there is no data to store or share.
 let package = Package(
     name: "KnotworkKit", platforms: [.macOS(.v26), .iOS(.v26)],
-    products: [.library(name: "Core", targets: ["Core"]), .library(name: "UI", targets: ["UI"])],
+    products: [
+        .library(name: "Core", targets: ["Core"]),
+        .library(name: "Tilesets", targets: ["Tilesets"]), .library(name: "UI", targets: ["UI"]),
+    ],
     targets: [
         // The knot itself: break lines and the tiles they make. No UI.
         .target(name: "Core", swiftSettings: shared),
+        // The tiles drawn in code, in more than one style. CoreGraphics only,
+        // so that the same drawing serves a view and a script.
+        .target(name: "Tilesets", dependencies: ["Core"], swiftSettings: shared),
+        // Renders every tileset, and the original images, to PNG sheets for
+        // comparing them: `make tile-sheets`.
+        .executableTarget(
+            name: "TileSheets", dependencies: ["Core", "Tilesets"], swiftSettings: shared),
         // The model, the commands, and the views.
         .target(
             name: "UI", dependencies: ["Core"], resources: [.copy("Resources/Tiles")],

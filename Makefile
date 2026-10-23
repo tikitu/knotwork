@@ -42,7 +42,7 @@ include mk/app-tooling.mk
 # (app-tooling: build-warnings). docs/app-tooling/build-warnings/.
 include mk/build-warnings.mk
 
-.PHONY: all help check test fmt fmt-check rules lint clean \
+.PHONY: all help check test tile-sheets fmt fmt-check rules lint clean \
         ios-project ios-build ios-run ios-run-commands ios-screenshot \
         ios-device-build ios-device-run ios-device-which ios-clean
 
@@ -52,6 +52,7 @@ help:
 	@echo "Build and test:"
 	@echo "  check             Compile the shared package for macOS and iOS; the fast gate"
 	@echo "  test              Run the shared package's tests, on the Mac"
+	@echo "  tile-sheets       Render every tileset beside the original images, to build/tilesets/"
 	@echo "  clean             Remove build/ and the packages' .build/"
 	@echo ""
 	@echo "iOS:"
@@ -108,6 +109,11 @@ check:
 test:
 	swift test --package-path $(SHARED)
 	@echo "✓ tests pass"
+
+# The tilesets drawn in code, beside Boston-Baden's images, as PNGs: each tile
+# on its own, and some knots made of them.
+tile-sheets:
+	swift run --package-path $(SHARED) TileSheets $(SHARED)/Sources/UI/Resources/Tiles build/tilesets
 
 clean:
 	rm -rf build $(SHARED)/.build $(IOS_PACKAGE)/.build

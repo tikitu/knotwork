@@ -5,7 +5,7 @@
 
 /// One of the four tiles a cell shows when no break line touches it. Which
 /// one depends only on the cell's position: they alternate in a checkerboard.
-public enum BaseTile: Sendable {
+public enum BaseTile: CaseIterable, Sendable {
     case l, w, u, i
 
     /// The base tile at column `x`, row `y` of the tile grid.
@@ -22,7 +22,7 @@ public enum BaseTile: Sendable {
 }
 
 /// A side of a tile, cut by a break line.
-public enum Edge: Sendable { case n, s, w, e }
+public enum Edge: CaseIterable, Sendable { case n, s, w, e }
 
 /// One of Boston-Baden's tiles. The raw value names its image.
 public enum Tile: String, CaseIterable, Sendable {
