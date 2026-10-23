@@ -32,14 +32,12 @@ enum SketchTiles {
     /// How far an edge wanders, at most, from where it should be.
     static let wobble: CGFloat = 0.012
 
-    static func draw(_ tile: Tile, in context: CGContext, seed: UInt64) {
+    static func draw(_ tile: Tile, in context: CGContext, seed: UInt64, pointedCorners: Bool) {
         var random = SplitMix64(seed: bandSeed(tile, seed) ^ 0x5EED)
-        context.setFillColor(paper)
-        context.fill(CGRect(x: 0, y: 0, width: 1, height: 1))
         speckle(in: context, random: &random)
         guard let strand = tile.strand else { return }
         context.beginTransparencyLayer(auxiliaryInfo: nil)
-        let edges = drawBand(of: tile, strand, in: context, seed: seed)
+        let edges = drawBand(of: tile, in: context, seed: seed, pointedCorners: pointedCorners)
         for corner in TileGeometry.underCorners(of: strand) {
             hatch(
                 at: corner, inside: TileGeometry.region(between: edges), in: context,
@@ -55,10 +53,10 @@ enum SketchTiles {
     /// seed, and returns its edges.
     @discardableResult
     static func drawBand(
-        of tile: Tile, _ strand: Strand, in context: CGContext, seed: UInt64
+        of tile: Tile, in context: CGContext, seed: UInt64, pointedCorners: Bool
     ) -> [Polyline] {
         var random = SplitMix64(seed: bandSeed(tile, seed))
-        let edges = TileGeometry.edges(of: strand)
+        let edges = TileGeometry.edges(of: tile, pointedCorners: pointedCorners)
         band(edges, in: context, random: &random)
         return edges
     }

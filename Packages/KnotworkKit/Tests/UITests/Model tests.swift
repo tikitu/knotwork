@@ -92,4 +92,29 @@ struct ModelTests {
         )
         #expect(model.tiles.joined().contains(.empty) == false)
     }
+
+    @Test
+    func `appearance settings start hidden, with smooth pointed tiles`() {
+        #expect(!model.isShowingSettings)
+        #expect(model.tileStyle == .smooth)
+        #expect(model.hasPointedCorners)
+    }
+
+    @Test
+    func `appearance commands change the appearance, with or without a knot`() throws {
+        try model.perform(.showSettings(true))
+        try model.perform(.setTiles(.original))
+        try model.perform(.setPointedCorners(false))
+        #expect(model.isShowingSettings)
+        #expect(model.tileStyle == .original)
+        #expect(!model.hasPointedCorners)
+    }
+
+    @Test
+    func `the settings controls bind to change the appearance`() {
+        model.tileStyleSetting = .sketch
+        model.pointedCornersSetting = false
+        #expect(model.tileStyle == .sketch)
+        #expect(!model.hasPointedCorners)
+    }
 }

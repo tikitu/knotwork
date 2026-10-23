@@ -14,6 +14,11 @@ vertical and none; in the middle of a cell, the cell empties or fills. Drag
 straight along a row or column to cut the knot along that line. A diagonal
 drag does nothing.
 
+The palette button shows the appearance settings below the knot: the tiles
+drawn as the original images or as one of the tilesets drawn in code
+(smooth, sketch), and whether the knot's corners come to a point. Changes
+show at once.
+
 What it deliberately does not do yet: save, share, undo, or start again
 without relaunching. The knot lives in memory.
 
@@ -45,7 +50,7 @@ Packages/KnotworkKit/      shared: macOS and iOS, tested on the Mac
   Core            the knot: break lines, the tiles they make, and the
                   strand each tile shows
   Tilesets        the tiles drawn in code (CoreGraphics), in more than one
-                  style; not used by the app yet
+                  style
   TileSheets      `make tile-sheets`: every tileset beside the original
                   images, as PNGs in build/tilesets/
   UI              AppModel, AppCommand, the command inbox, the knot view

@@ -80,6 +80,9 @@ where both are odd, it is the centre of a cell.
 | `newGrid` | `rows`, `cols` | Replaces the knot with a fresh one, bordered all round. 1 to 200 cells each way. At launch the view does this itself, with as many cells as fit. |
 | `toggle` | `at` | A tap. On a segment, cycles its break line: horizontal, vertical, none. On a cell's centre, empties the cell or refills it. |
 | `cut` | `from`, `to` | A drag. Toggles break lines all along a straight line along a row or column. A diagonal, a point off the grid, or a cut that goes nowhere is an error. |
+| `setTiles` | `style` | Draws the tiles as `"original"` (Boston-Baden's images), `"smooth"` or `"sketch"`. The appearance settings' picker. |
+| `setPointedCorners` | `on` | Whether the knot's corners come to a sharp point (`true`, as in the original images) or keep the band's width. Drawn tiles only. The appearance settings' switch. |
+| `showSettings` | `shown` | Shows or hides the appearance settings, below the knot. The toolbar's palette button. |
 
 ```json
 {
@@ -87,6 +90,16 @@ where both are odd, it is the centre of a cell.
     { "newGrid": { "rows": 2, "cols": 3 } },
     { "cut": { "from": [0, 2], "to": [6, 2] } },
     { "toggle": { "at": [1, 1] } }
+  ]
+}
+```
+
+```json
+{
+  "commands": [
+    { "showSettings": { "shown": true } },
+    { "setTiles": { "style": "sketch" } },
+    { "setPointedCorners": { "on": false } }
   ]
 }
 ```

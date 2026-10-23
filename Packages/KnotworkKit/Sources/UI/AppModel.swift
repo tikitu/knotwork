@@ -24,6 +24,16 @@ public final class AppModel {
     /// redraw.
     public private(set) var tiles: [[Tile]] = []
 
+    /// How the tiles are drawn.
+    public private(set) var tileStyle = TileStyle.smooth
+
+    /// Whether the knot's corners come to a sharp point, as in the original
+    /// images, rather than keeping the band's width. Drawn tiles only.
+    public private(set) var hasPointedCorners = true
+
+    /// Whether the appearance settings are showing.
+    public private(set) var isShowingSettings = false
+
     /// The last thing that went wrong. Logged; nothing shows it yet.
     public private(set) var lastError: String?
 
@@ -62,6 +72,18 @@ public final class AppModel {
             grid.cut(from: start, to: end)
             self.grid = grid
             return "cut \(start) to \(end)"
+
+        case .setTiles(let style):
+            tileStyle = style
+            return "tiles: \(style.rawValue)"
+
+        case .setPointedCorners(let on):
+            hasPointedCorners = on
+            return "pointed corners \(on ? "on" : "off")"
+
+        case .showSettings(let shown):
+            isShowingSettings = shown
+            return "settings \(shown ? "shown" : "hidden")"
         }
     }
 
@@ -77,5 +99,26 @@ public final class AppModel {
             logger.error("\(command.name, privacy: .public) failed: \(error, privacy: .public)")
             lastError = "\(error)"
         }
+    }
+}
+
+// MARK: - For controls
+
+extension AppModel {
+    // Properties a control can bind to (`$model.tileStyleSetting`) whose
+    // setters perform the command, so that the control changes nothing
+    // itself (docs/commands.md).
+
+    /// ``tileStyle``, set through ``AppCommand/setTiles(_:)``.
+    public var tileStyleSetting: TileStyle {
+        get { tileStyle }
+        set { attempt(.setTiles(newValue)) }
+    }
+
+    /// ``hasPointedCorners``, set through
+    /// ``AppCommand/setPointedCorners(_:)``.
+    public var pointedCornersSetting: Bool {
+        get { hasPointedCorners }
+        set { attempt(.setPointedCorners(newValue)) }
     }
 }

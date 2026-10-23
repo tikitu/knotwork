@@ -67,9 +67,10 @@ private struct KnotEditor: View {
     private var drag: DragGesture.Value?
 
     var body: some View {
-        KnotCanvas(tiles: model.tiles, tileSide: tileSide).frame(
-            width: CGFloat(cols * 2) * tileSide, height: CGFloat(rows * 2) * tileSide
-        ).overlay {
+        KnotCanvas(
+            tiles: model.tiles, tileSide: tileSide, style: model.tileStyle,
+            hasPointedCorners: model.hasPointedCorners
+        ).frame(width: CGFloat(cols * 2) * tileSide, height: CGFloat(rows * 2) * tileSide).overlay {
             if let drag {
                 let start = point(nearest: drag.startLocation)
                 let end = point(nearest: drag.location)
@@ -137,20 +138,37 @@ private struct CutPreview: View {
 private struct KnotCanvas: View {
     let tiles: [[Tile]]
     let tileSide: CGFloat
+    let style: TileStyle
+    let hasPointedCorners: Bool
 
     var body: some View {
         Canvas { context, _ in
-            var resolved: [Tile: GraphicsContext.ResolvedImage] = [:]
-            for (y, row) in tiles.enumerated() {
-                for (x, tile) in row.enumerated() {
-                    let image = resolved[tile] ?? context.resolve(tile.image)
-                    resolved[tile] = image
-                    context.draw(
-                        image,
-                        in: CGRect(
-                            x: CGFloat(x) * tileSide, y: CGFloat(y) * tileSide, width: tileSide,
-                            height: tileSide))
+            if let tileset = style.tileset {
+                // Drawn in CoreGraphics, in two passes over the whole knot
+                // (`Tileset.draw(_:in:origin:tileSide:pointedCorners:variant:)`).
+                context.withCGContext { cg in
+                    tileset.draw(
+                        tiles, in: cg, origin: .zero, tileSide: tileSide,
+                        pointedCorners: hasPointedCorners)
                 }
+            } else {
+                drawImages(in: context)
+            }
+        }
+    }
+
+    /// Boston-Baden's images, tile by tile.
+    private func drawImages(in context: GraphicsContext) {
+        var resolved: [Tile: GraphicsContext.ResolvedImage] = [:]
+        for (y, row) in tiles.enumerated() {
+            for (x, tile) in row.enumerated() {
+                let image = resolved[tile] ?? context.resolve(tile.image)
+                resolved[tile] = image
+                context.draw(
+                    image,
+                    in: CGRect(
+                        x: CGFloat(x) * tileSide, y: CGFloat(y) * tileSide, width: tileSide,
+                        height: tileSide))
             }
         }
     }

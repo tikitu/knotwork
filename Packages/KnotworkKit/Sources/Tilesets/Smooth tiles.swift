@@ -12,15 +12,13 @@ enum SmoothTiles {
     /// The gap either side of a strand where it passes over another.
     static let gap: CGFloat = 0.07
 
-    /// Draws `tile` in a unit square.
-    static func draw(_ tile: Tile, in context: CGContext) {
-        context.setFillColor(ground)
-        context.fill(CGRect(x: 0, y: 0, width: 1, height: 1))
+    /// Draws `tile`'s strand in a unit square, over the ground.
+    static func draw(_ tile: Tile, in context: CGContext, pointedCorners: Bool) {
         guard let strand = tile.strand else { return }
         // A layer of its own, so that erasing a gap uncovers the ground
         // rather than punching through it.
         context.beginTransparencyLayer(auxiliaryInfo: nil)
-        band(TileGeometry.edges(of: strand), in: context)
+        band(TileGeometry.edges(of: tile, pointedCorners: pointedCorners), in: context)
         for corner in TileGeometry.underCorners(of: strand) {
             context.erase(
                 along: TileGeometry.overStrand(at: corner),
@@ -29,10 +27,10 @@ enum SmoothTiles {
         context.endTransparencyLayer()
     }
 
-    /// The band of `strand`, for drawing where it spills into the tiles
-    /// beside it.
-    static func drawBand(of strand: Strand, in context: CGContext) {
-        band(TileGeometry.edges(of: strand), in: context)
+    /// The band of `tile`'s strand, for drawing where it spills into the
+    /// tiles beside it.
+    static func drawBand(of tile: Tile, in context: CGContext, pointedCorners: Bool) {
+        band(TileGeometry.edges(of: tile, pointedCorners: pointedCorners), in: context)
     }
 
     private static func band(_ edges: [Polyline], in context: CGContext) {

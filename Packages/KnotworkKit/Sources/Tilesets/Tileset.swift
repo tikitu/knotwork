@@ -34,46 +34,81 @@ public enum Tileset: String, CaseIterable, Sendable {
     /// tile.
     public func draw(
         _ tiles: [[Tile]], in context: CGContext, origin: CGPoint, tileSide: CGFloat,
-        variant: (_ x: Int, _ y: Int) -> UInt64 = { _, _ in 0 }
+        pointedCorners: Bool = true, variant: (_ x: Int, _ y: Int) -> UInt64 = { _, _ in 0 }
     ) {
         func rect(_ x: Int, _ y: Int) -> CGRect {
             CGRect(
                 x: origin.x + CGFloat(x) * tileSide, y: origin.y + CGFloat(y) * tileSide,
                 width: tileSide, height: tileSide)
         }
+        // The ground once, under the whole knot: drawn tile by tile, it
+        // shows the edges between tiles as hairlines.
+        let rows = CGFloat(tiles.count)
+        let cols = CGFloat(tiles.first?.count ?? 0)
+        context.setFillColor(ground)
+        context.fill(
+            CGRect(x: origin.x, y: origin.y, width: cols * tileSide, height: rows * tileSide))
         for (y, row) in tiles.enumerated() {
             for (x, tile) in row.enumerated() {
-                draw(tile, in: context, rect: rect(x, y), variant: variant(x, y))
+                drawStrand(
+                    of: tile, in: context, rect: rect(x, y), pointedCorners: pointedCorners,
+                    variant: variant(x, y))
             }
         }
         for (y, row) in tiles.enumerated() {
             for (x, tile) in row.enumerated() {
-                drawSpills(of: tile, in: context, rect: rect(x, y), variant: variant(x, y))
+                drawSpills(
+                    of: tile, in: context, rect: rect(x, y), pointedCorners: pointedCorners,
+                    variant: variant(x, y))
             }
         }
     }
 
     /// Draws `tile` alone, filling `rect`, without the spills of the strands
     /// that pass over it at its corners, which belong to its neighbours.
-    public func draw(_ tile: Tile, in context: CGContext, rect: CGRect, variant: UInt64 = 0) {
+    public func draw(
+        _ tile: Tile, in context: CGContext, rect: CGRect, pointedCorners: Bool = true,
+        variant: UInt64 = 0
+    ) {
+        context.setFillColor(ground)
+        context.fill(rect)
+        drawStrand(
+            of: tile, in: context, rect: rect, pointedCorners: pointedCorners, variant: variant)
+    }
+
+    /// The colour under the strands.
+    var ground: CGColor {
+        switch self {
+        case .smooth: SmoothTiles.ground
+        case .sketch: SketchTiles.paper
+        }
+    }
+
+    /// Draws what `tile` adds to the ground under it, filling `rect`.
+    func drawStrand(
+        of tile: Tile, in context: CGContext, rect: CGRect, pointedCorners: Bool, variant: UInt64
+    ) {
         context.saveGState()
         defer { context.restoreGState() }
         context.clip(to: rect.insetBy(dx: -context.overlap, dy: -context.overlap))
         context.translateBy(x: rect.minX, y: rect.minY)
         context.scaleBy(x: rect.width, y: rect.height)
         // One layer, so that at the clip's antialiased edge the tile is
-        // blended once, not ground, outline and fill each in part.
+        // blended once, not outline and fill each in part.
         context.beginTransparencyLayer(auxiliaryInfo: nil)
         switch self {
-        case .smooth: SmoothTiles.draw(tile, in: context)
-        case .sketch: SketchTiles.draw(tile, in: context, seed: variant)
+        case .smooth: SmoothTiles.draw(tile, in: context, pointedCorners: pointedCorners)
+        case .sketch:
+            SketchTiles.draw(tile, in: context, seed: variant, pointedCorners: pointedCorners)
         }
         context.endTransparencyLayer()
     }
 
     /// Draws where `tile`'s band spills over its corners into the tiles
     /// beside it, where it passes over another strand.
-    func drawSpills(of tile: Tile, in context: CGContext, rect: CGRect, variant: UInt64) {
+    func drawSpills(
+        of tile: Tile, in context: CGContext, rect: CGRect, pointedCorners: Bool, variant: UInt64
+    ) {
         guard let strand = tile.strand else { return }
         let corners = TileGeometry.overCorners(of: strand)
         guard !corners.isEmpty else { return }
@@ -87,8 +122,11 @@ public enum Tileset: String, CaseIterable, Sendable {
             TileGeometry.clip(context, toSpillAt: corner, overlap: overlap)
             context.beginTransparencyLayer(auxiliaryInfo: nil)
             switch self {
-            case .smooth: SmoothTiles.drawBand(of: strand, in: context)
-            case .sketch: SketchTiles.drawBand(of: tile, strand, in: context, seed: variant)
+            case .smooth:
+                SmoothTiles.drawBand(of: tile, in: context, pointedCorners: pointedCorners)
+            case .sketch:
+                SketchTiles.drawBand(
+                    of: tile, in: context, seed: variant, pointedCorners: pointedCorners)
             }
             context.endTransparencyLayer()
             context.restoreGState()
@@ -98,15 +136,15 @@ public enum Tileset: String, CaseIterable, Sendable {
     /// Draws the edges of `tile`'s band, without gaps, as lines `lineWidth`
     /// wide: for laying the shared geometry over other images to compare.
     public static func drawOutline(
-        of tile: Tile, in context: CGContext, rect: CGRect, color: CGColor, lineWidth: CGFloat
+        of tile: Tile, in context: CGContext, rect: CGRect, color: CGColor, lineWidth: CGFloat,
+        pointedCorners: Bool = true
     ) {
-        guard let strand = tile.strand else { return }
         context.saveGState()
         defer { context.restoreGState() }
         context.clip(to: rect)
         context.translateBy(x: rect.minX, y: rect.minY)
         context.scaleBy(x: rect.width, y: rect.height)
-        for edge in TileGeometry.edges(of: strand) {
+        for edge in TileGeometry.edges(of: tile, pointedCorners: pointedCorners) {
             let path = CGMutablePath()
             path.addLines(between: edge.simplified(tolerance: 1e-4))
             context.stroke(path, width: lineWidth / rect.width, color: color)

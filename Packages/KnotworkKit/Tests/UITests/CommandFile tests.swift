@@ -19,7 +19,7 @@ struct CommandFileTests {
     }()
 
     @Test
-    func `the document has request examples`() { #expect(Self.documentedRequests.count == 2) }
+    func `the document has request examples`() { #expect(Self.documentedRequests.count == 3) }
 
     @Test(arguments: documentedRequests)
     func `every documented request decodes`(json: String) throws {
@@ -39,7 +39,16 @@ struct CommandFileTests {
             ])
     }
 
+    @Test
+    func `the appearance example decodes to what it says`() throws {
+        let file = try JSONDecoder().decode(
+            CommandFile.self, from: Data(Self.documentedRequests[2].utf8))
+        #expect(
+            file.commands == [.showSettings(true), .setTiles(.sketch), .setPointedCorners(false)])
+    }
+
     @Test(arguments: [
+        #"{"commands":[{"setTiles":{"style":"fancy"}}]}"#,
         #"{"commands":[{"togle":{"at":[1,0]}}]}"#, #"{"commands":[{"toggle":{"point":[1,0]}}]}"#,
         #"{"commands":[{"toggle":{"at":[1,0,2]}}]}"#,
         #"{"commands":[{"toggle":{"at":[1,0]},"newGrid":{"rows":1,"cols":1}}]}"#,

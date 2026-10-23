@@ -15,7 +15,7 @@ import CoreGraphics
 // * A quarter turn, at a corner of the knot, starts and ends as sharply
 //   curved as that arc, so that it carries on from its neighbours without a
 //   change in curvature, and tightens to a point in the middle. With
-//   `pointedCorners`, its outer edge comes to a sharper point still.
+//   pointed corners, its outer edge comes to a sharper point still.
 //
 // Where a strand passes over another at a corner, its band spills into the
 // corners of the two tiles beside it. Those tiles know nothing of it; the
@@ -31,21 +31,36 @@ enum TileGeometry {
     /// stroke clipped to the tile has no end caps showing.
     static let overrun: CGFloat = 0.6
 
-    /// Whether the outer edge of a knot's corner comes to a sharper point
-    /// than an even band allows, as in the original images: the inner edge
-    /// stays where it is, and the band widens towards the point. `false`
-    /// gives an even band all the way round.
-    static let pointedCorners = true
-
     /// How sharp that point is: the higher, the more of the turn is packed
     /// into the middle of the bend.
     static let cornerSharpness: CGFloat = 48
 
-    /// The two edges of a strand's band, each run on past both ends like
-    /// its centre line and running the same way: first the edge on the side
-    /// the centre line's normals point to (`Polyline.normal(at:)`), then the
-    /// other.
-    static func edges(of strand: Strand) -> [Polyline] {
+    /// The two edges of `tile`'s band, each run on past both ends like its
+    /// centre line and running the same way: first the edge on the side the
+    /// centre line's normals point to (`Polyline.normal(at:)`), then the
+    /// other. None for the empty tile.
+    ///
+    /// With `pointedCorners`, the outer edge of a knot's corner comes to a
+    /// sharper point than an even band allows, as in the original images:
+    /// the inner edge stays where it is, and the band widens towards the
+    /// point.
+    ///
+    /// Worked out once for every tile, not on every redraw.
+    static func edges(of tile: Tile, pointedCorners: Bool) -> [Polyline] {
+        (pointedCorners ? pointedEdges : evenEdges)[tile] ?? []
+    }
+
+    private static let pointedEdges = allEdges(pointedCorners: true)
+    private static let evenEdges = allEdges(pointedCorners: false)
+
+    private static func allEdges(pointedCorners: Bool) -> [Tile: [Polyline]] {
+        Dictionary(
+            uniqueKeysWithValues: Tile.allCases.compactMap { tile in
+                tile.strand.map { (tile, edges(of: $0, pointedCorners: pointedCorners)) }
+            })
+    }
+
+    private static func edges(of strand: Strand, pointedCorners: Bool) -> [Polyline] {
         let line = Polyline(centreline(of: strand), spacing: 0.01)
         var edges = [halfWidth, -halfWidth].map { offset in
             Polyline(points: line.offset { _ in offset })

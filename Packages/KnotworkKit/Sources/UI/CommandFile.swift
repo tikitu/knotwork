@@ -29,18 +29,21 @@ extension GridPoint: Decodable {
 
 extension AppCommand: Decodable {
     private enum Name: String, CodingKey, CaseIterable {
-        case newGrid, toggle, cut
+        case newGrid, toggle, cut, setTiles, setPointedCorners, showSettings
 
         var fields: Set<String> {
             switch self {
             case .newGrid: ["rows", "cols"]
             case .toggle: ["at"]
             case .cut: ["from", "to"]
+            case .setTiles: ["style"]
+            case .setPointedCorners: ["on"]
+            case .showSettings: ["shown"]
             }
         }
     }
 
-    private enum Field: String, CodingKey { case rows, cols, at, from, to }
+    private enum Field: String, CodingKey { case rows, cols, at, from, to, style, on, shown }
 
     public init(from decoder: any Decoder) throws {
         let commands = try decoder.container(keyedBy: AnyKey.self)
@@ -80,6 +83,10 @@ extension AppCommand: Decodable {
                 cols: try fields.decode(Int.self, forKey: .cols))
         case .toggle: self = .toggle(try point(.at))
         case .cut: self = .cut(from: try point(.from), to: try point(.to))
+        case .setTiles: self = .setTiles(try fields.decode(TileStyle.self, forKey: .style))
+        case .setPointedCorners:
+            self = .setPointedCorners(try fields.decode(Bool.self, forKey: .on))
+        case .showSettings: self = .showSettings(try fields.decode(Bool.self, forKey: .shown))
         }
     }
 }

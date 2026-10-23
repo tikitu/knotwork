@@ -15,6 +15,12 @@ public enum AppCommand: Equatable, Sendable {
     case toggle(GridPoint)
     /// A drag along a straight line: toggles break lines all along it.
     case cut(from: GridPoint, to: GridPoint)
+    /// Draws the tiles in `style`.
+    case setTiles(TileStyle)
+    /// Whether the knot's corners come to a sharp point (drawn tiles only).
+    case setPointedCorners(Bool)
+    /// Shows or hides the appearance settings.
+    case showSettings(Bool)
 
     /// The command's name in a command file.
     var name: String {
@@ -22,6 +28,9 @@ public enum AppCommand: Equatable, Sendable {
         case .newGrid: "newGrid"
         case .toggle: "toggle"
         case .cut: "cut"
+        case .setTiles: "setTiles"
+        case .setPointedCorners: "setPointedCorners"
+        case .showSettings: "showSettings"
         }
     }
 }

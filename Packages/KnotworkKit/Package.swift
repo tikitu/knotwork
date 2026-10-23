@@ -36,7 +36,7 @@ let package = Package(
             name: "TileSheets", dependencies: ["Core", "Tilesets"], swiftSettings: shared),
         // The model, the commands, and the views.
         .target(
-            name: "UI", dependencies: ["Core"], resources: [.copy("Resources/Tiles")],
+            name: "UI", dependencies: ["Core", "Tilesets"], resources: [.copy("Resources/Tiles")],
             swiftSettings: shared),
         .testTarget(name: "CoreTests", dependencies: ["Core"], swiftSettings: shared),
         .testTarget(name: "UITests", dependencies: ["UI"], swiftSettings: shared),
