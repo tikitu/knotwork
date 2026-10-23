@@ -64,3 +64,14 @@ formatted.
 On every build of a package scheme or the generated project. It is
 xcodebuild's own log line, not a build warning, and the build is fine:
 check the products rather than the line.
+
+## The drawn tiles are drawn as images, not as geometry, in the app
+
+A tileset's geometry is slow to draw: each tile is thousands of points and a
+transparency layer or two, and a knot that fills an iPad has thousands of
+tiles. Drawn tile by tile on every change (`Tileset.draw(_:in:…)`), each tap
+on an iPad took over half a second, and switching to the sketch tiles more
+than four. But there are only 27 different tiles, so `KnotCanvas` draws each
+once (`Tileset.images(side:pointedCorners:)`) and repeats the images, as it
+does Boston-Baden's. `Tileset.draw` is still what the tile sheets and the
+icon use, and a test keeps the two the same.

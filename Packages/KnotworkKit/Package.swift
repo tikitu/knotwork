@@ -39,5 +39,7 @@ let package = Package(
             name: "UI", dependencies: ["Core", "Tilesets"], resources: [.copy("Resources/Tiles")],
             swiftSettings: shared),
         .testTarget(name: "CoreTests", dependencies: ["Core"], swiftSettings: shared),
+        .testTarget(
+            name: "TilesetsTests", dependencies: ["Core", "Tilesets"], swiftSettings: shared),
         .testTarget(name: "UITests", dependencies: ["UI"], swiftSettings: shared),
     ])

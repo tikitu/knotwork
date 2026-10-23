@@ -1,5 +1,6 @@
 import Core
 import SwiftUI
+import Tilesets
 
 /// The knot, edited by touch: a tap on a grid point toggles it, a drag along
 /// a row or column cuts there.
@@ -135,24 +136,48 @@ private struct CutPreview: View {
 
 /// The tiles, drawn. A view of its own so that a drag, which redraws the
 /// preview line many times a second, does not redraw them.
+///
+/// Every style is drawn by repeating one image per tile: drawing each tile's
+/// geometry afresh was far too slow for a large knot (`TileImages`).
 private struct KnotCanvas: View {
     let tiles: [[Tile]]
     let tileSide: CGFloat
     let style: TileStyle
     let hasPointedCorners: Bool
 
+    @Environment(\.displayScale)
+    private var displayScale
+
     var body: some View {
-        Canvas { context, _ in
-            if let tileset = style.tileset {
-                // Drawn in CoreGraphics, in two passes over the whole knot
-                // (`Tileset.draw(_:in:origin:tileSide:pointedCorners:variant:)`).
-                context.withCGContext { cg in
-                    tileset.draw(
-                        tiles, in: cg, origin: .zero, tileSide: tileSide,
-                        pointedCorners: hasPointedCorners)
-                }
+        let images = style.tileset.map { tileset in
+            DrawnTiles.images(
+                tileset, side: Int((tileSide * displayScale).rounded(.up)),
+                pointedCorners: hasPointedCorners)
+        }
+        Canvas { context, size in
+            if let tileset = style.tileset, let images {
+                context.fill(
+                    Path(CGRect(origin: .zero, size: size)), with: .color(Color(tileset.ground)))
+                draw(images.strands, margin: images.strandMargin, in: context)
+                draw(images.spills, margin: images.spillMargin, in: context)
             } else {
                 drawImages(in: context)
+            }
+        }
+    }
+
+    /// One image per tile, each reaching `margin` tile sides past it.
+    private func draw(_ images: [Tile: CGImage], margin: CGFloat, in context: GraphicsContext) {
+        var resolved: [Tile: GraphicsContext.ResolvedImage] = [:]
+        for (y, row) in tiles.enumerated() {
+            for (x, tile) in row.enumerated() {
+                guard let image = images[tile] else { continue }
+                let resolvedImage =
+                    resolved[tile] ?? context.resolve(Image(decorative: image, scale: displayScale))
+                resolved[tile] = resolvedImage
+                context.draw(
+                    resolvedImage,
+                    in: rect(x, y).insetBy(dx: -margin * tileSide, dy: -margin * tileSide))
             }
         }
     }
@@ -164,12 +189,34 @@ private struct KnotCanvas: View {
             for (x, tile) in row.enumerated() {
                 let image = resolved[tile] ?? context.resolve(tile.image)
                 resolved[tile] = image
-                context.draw(
-                    image,
-                    in: CGRect(
-                        x: CGFloat(x) * tileSide, y: CGFloat(y) * tileSide, width: tileSide,
-                        height: tileSide))
+                context.draw(image, in: rect(x, y))
             }
         }
+    }
+
+    private func rect(_ x: Int, _ y: Int) -> CGRect {
+        CGRect(
+            x: CGFloat(x) * tileSide, y: CGFloat(y) * tileSide, width: tileSide, height: tileSide)
+    }
+}
+
+/// The images of the tileset last drawn, kept until the tileset, its size or
+/// its corners change, rather than drawn again for every change to the knot.
+@MainActor
+private enum DrawnTiles {
+    private static var last: (key: Key, images: TileImages)?
+
+    private struct Key: Equatable {
+        var tileset: Tileset
+        var side: Int
+        var pointedCorners: Bool
+    }
+
+    static func images(_ tileset: Tileset, side: Int, pointedCorners: Bool) -> TileImages {
+        let key = Key(tileset: tileset, side: side, pointedCorners: pointedCorners)
+        if let last, last.key == key { return last.images }
+        let images = tileset.images(side: side, pointedCorners: pointedCorners)
+        last = (key, images)
+        return images
     }
 }
