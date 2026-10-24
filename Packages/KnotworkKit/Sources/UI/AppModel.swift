@@ -31,7 +31,10 @@ public final class AppModel {
     /// images, rather than keeping the band's width. Drawn tiles only.
     public private(set) var hasPointedCorners = true
 
-    /// Whether the appearance settings are showing.
+    /// What a drag across the knot does.
+    public private(set) var dragMode = DragMode.cut
+
+    /// Whether the controls are showing.
     public private(set) var isShowingSettings = false
 
     /// The last thing that went wrong. Logged; nothing shows it yet.
@@ -73,6 +76,34 @@ public final class AppModel {
             self.grid = grid
             return "cut \(start) to \(end)"
 
+        case .clearCells(let start, let end):
+            guard var grid else { throw CommandError.noGrid }
+            for point in [start, end] where !grid.contains(point) {
+                throw CommandError.offGrid(point)
+            }
+            guard [start.x, start.y, end.x, end.y].allSatisfy({ $0 % 2 == 0 }), start.x != end.x,
+                start.y != end.y
+            else { throw CommandError.notRectangle(start, end) }
+            grid.empty(from: start, to: end)
+            self.grid = grid
+            return "cleared \(start) to \(end)"
+
+        case .clearAll:
+            guard var grid else { throw CommandError.noGrid }
+            grid.emptyAll()
+            self.grid = grid
+            return "cleared everything"
+
+        case .fillAll:
+            guard var grid else { throw CommandError.noGrid }
+            grid.fillAll()
+            self.grid = grid
+            return "filled everything"
+
+        case .setDragMode(let mode):
+            dragMode = mode
+            return "drag mode: \(mode.rawValue)"
+
         case .setTiles(let style):
             tileStyle = style
             return "tiles: \(style.rawValue)"
@@ -113,6 +144,12 @@ extension AppModel {
     public var tileStyleSetting: TileStyle {
         get { tileStyle }
         set { attempt(.setTiles(newValue)) }
+    }
+
+    /// ``dragMode``, set through ``AppCommand/setDragMode(_:)``.
+    public var dragModeSetting: DragMode {
+        get { dragMode }
+        set { attempt(.setDragMode(newValue)) }
     }
 
     /// ``hasPointedCorners``, set through

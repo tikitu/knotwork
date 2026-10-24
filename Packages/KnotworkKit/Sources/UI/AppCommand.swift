@@ -15,11 +15,20 @@ public enum AppCommand: Equatable, Sendable {
     case toggle(GridPoint)
     /// A drag along a straight line: toggles break lines all along it.
     case cut(from: GridPoint, to: GridPoint)
+    /// A drag in clear mode: empties the cells in the rectangle with these
+    /// cell corners.
+    case clearCells(from: GridPoint, to: GridPoint)
+    /// Empties every cell.
+    case clearAll
+    /// Fills every cell, with no break lines but the border.
+    case fillAll
+    /// What a drag does: cut, or clear a rectangle.
+    case setDragMode(DragMode)
     /// Draws the tiles in `style`.
     case setTiles(TileStyle)
     /// Whether the knot's corners come to a sharp point (drawn tiles only).
     case setPointedCorners(Bool)
-    /// Shows or hides the appearance settings.
+    /// Shows or hides the controls.
     case showSettings(Bool)
 
     /// The command's name in a command file.
@@ -28,6 +37,10 @@ public enum AppCommand: Equatable, Sendable {
         case .newGrid: "newGrid"
         case .toggle: "toggle"
         case .cut: "cut"
+        case .clearCells: "clearCells"
+        case .clearAll: "clearAll"
+        case .fillAll: "fillAll"
+        case .setDragMode: "setDragMode"
         case .setTiles: "setTiles"
         case .setPointedCorners: "setPointedCorners"
         case .showSettings: "showSettings"
@@ -41,6 +54,8 @@ public enum CommandError: Error, Equatable, CustomStringConvertible {
     case offGrid(GridPoint)
     /// A cut has to run straight along a row or a column, and go somewhere.
     case notStraight(GridPoint, GridPoint)
+    /// A rectangle to clear runs between two cell corners, and has area.
+    case notRectangle(GridPoint, GridPoint)
 
     public var description: String {
         switch self {
@@ -50,6 +65,8 @@ public enum CommandError: Error, Equatable, CustomStringConvertible {
         case .offGrid(let point): "\(point) is off the grid"
         case .notStraight(let start, let end):
             "a cut runs straight along a row or column; \(start) to \(end) does not"
+        case .notRectangle(let start, let end):
+            "a rectangle to clear runs between two cell corners (x and y even) that differ both ways; \(start) to \(end) does not"
         }
     }
 }

@@ -26,6 +26,20 @@ struct ConnectionTests {
         }
         #expect(looseEnds(grid.tiles()) == [], "seed \(seed)")
     }
+
+    @Test(arguments: 0..<200)
+    func `emptying a rectangle of a random knot leaves no loose ends`(seed: UInt64) {
+        var random = SplitMix(seed: seed)
+        var grid = AntiGrid(rows: 4, cols: 5)
+        grid.addBorders()
+        for _ in 0..<Int(random.next() % 30) {
+            grid.toggle(x: 1 + Int(random.next() % 9), y: 1 + Int(random.next() % 7))
+        }
+        func corner(_ cells: Int) -> Int { 2 * Int(random.next() % UInt64(cells + 1)) }
+        grid.empty(
+            from: GridPoint(x: corner(5), y: corner(4)), to: GridPoint(x: corner(5), y: corner(4)))
+        #expect(looseEnds(grid.tiles()) == [], "seed \(seed)")
+    }
 }
 
 /// The ports that lead nowhere, as "(x, y) port".

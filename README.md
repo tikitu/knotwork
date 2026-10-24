@@ -14,13 +14,16 @@ vertical and none; in the middle of a cell, the cell empties or fills. Drag
 straight along a row or column to cut the knot along that line. A diagonal
 drag does nothing.
 
-The palette button shows the appearance settings below the knot: the tiles
-drawn as the original images or as one of the tilesets drawn in code
-(smooth, sketch), and whether the knot's corners come to a point. Changes
-show at once.
+The palette button shows the controls below the knot. What a drag does: cut,
+as above, or clear a rectangle, which snaps to cell corners and empties the
+cells inside it (the strands round it stay joined). Clear All empties every
+cell; Fill All starts again with a fresh bordered knot. Then how it looks:
+the tiles drawn as the original images or as one of the tilesets drawn in
+code (smooth, sketch), and whether the knot's corners come to a point.
+Changes show at once.
 
-What it deliberately does not do yet: save, share, undo, or start again
-without relaunching. The knot lives in memory.
+What it deliberately does not do yet: save, share or undo. The knot lives in
+memory.
 
 `Knotwork.playground` is where this began and is not part of the app.
 

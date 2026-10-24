@@ -14,7 +14,7 @@ struct CommandFileTests {
             path: "../../../../docs/commands.md"))
 
     @Test
-    func `the document has request examples`() { #expect(Self.documentedRequests.count == 3) }
+    func `the document has request examples`() { #expect(Self.documentedRequests.count == 4) }
 
     @Test(arguments: documentedRequests)
     func `every documented request decodes`(json: String) throws {
@@ -45,10 +45,22 @@ struct CommandFileTests {
             ])
     }
 
+    @Test
+    func `the clearing example decodes to what it says`() throws {
+        let file = try JSONDecoder().decode(
+            CommandFile<AppCommand>.self, from: Data(Self.documentedRequests[3].utf8))
+        #expect(
+            file.commands == [
+                .command(.clearAll), .command(.fillAll), .command(.setDragMode(.clear)),
+                .command(.clearCells(from: GridPoint(x: 2, y: 2), to: GridPoint(x: 6, y: 4))),
+            ])
+    }
+
     @Test(arguments: [
         #"{"commands":[{"setTiles":{"style":"fancy"}}]}"#,
-        #"{"commands":[{"togle":{"at":[1,0]}}]}"#, #"{"commands":[{"toggle":{"point":[1,0]}}]}"#,
-        #"{"commands":[{"toggle":{"at":[1,0,2]}}]}"#,
+        #"{"commands":[{"setDragMode":{"mode":"erase"}}]}"#,
+        #"{"commands":[{"clearAll":{"now":true}}]}"#, #"{"commands":[{"togle":{"at":[1,0]}}]}"#,
+        #"{"commands":[{"toggle":{"point":[1,0]}}]}"#, #"{"commands":[{"toggle":{"at":[1,0,2]}}]}"#,
         #"{"commands":[{"toggle":{"at":[1,0]},"newGrid":{"rows":1,"cols":1}}]}"#,
     ])
     func `typos are errors, not silently ignored`(json: String) {

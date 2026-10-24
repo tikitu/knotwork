@@ -65,6 +65,57 @@ struct AntiGridTests {
     }
 
     @Test
+    func `emptying everything leaves only empty tiles`() {
+        var grid = AntiGrid(rows: 2, cols: 3)
+        grid.emptyAll()
+        #expect(grid.tiles().joined().allSatisfy { $0 == .empty })
+    }
+
+    @Test
+    func `filling everything gives a fresh bordered knot, whatever was cut or emptied`() {
+        var fresh = AntiGrid(rows: 2, cols: 3)
+        fresh.addBorders()
+        var grid = fresh
+        grid.cut(from: GridPoint(x: 2, y: 0), to: GridPoint(x: 2, y: 4))
+        grid.toggle(x: 3, y: 1)
+        grid.fillAll()
+        #expect(grid == fresh)
+        grid.emptyAll()
+        grid.fillAll()
+        #expect(grid == fresh)
+    }
+
+    @Test
+    func `refilling a cell after emptying everything brings back no old cuts`() {
+        var grid = AntiGrid(rows: 1, cols: 2)
+        grid.addBorders()
+        grid.cut(from: GridPoint(x: 2, y: 0), to: GridPoint(x: 2, y: 2))
+        grid.emptyAll()
+        grid.toggle(x: 1, y: 1)
+        grid.toggle(x: 3, y: 1)
+        var fresh = AntiGrid(rows: 1, cols: 2)
+        fresh.addBorders()
+        #expect(grid == fresh)
+    }
+
+    @Test
+    func `emptying a rectangle empties exactly the cells inside it, either way round`() {
+        var grid = AntiGrid(rows: 3, cols: 4)
+        grid.addBorders()
+        var reversed = grid
+        grid.empty(from: GridPoint(x: 2, y: 0), to: GridPoint(x: 6, y: 4))
+        reversed.empty(from: GridPoint(x: 6, y: 4), to: GridPoint(x: 2, y: 0))
+        #expect(grid == reversed)
+        let tiles = grid.tiles()
+        for y in 0..<6 {
+            for x in 0..<8 {
+                let isInside = (2..<6).contains(x) && (0..<4).contains(y)
+                #expect((tiles[y][x] == .empty) == isInside, "(\(x), \(y))")
+            }
+        }
+    }
+
+    @Test
     func `points off the grid do nothing`() {
         var grid = AntiGrid(rows: 2, cols: 2)
         let start = grid

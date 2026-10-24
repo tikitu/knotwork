@@ -3,7 +3,8 @@ import SwiftUI
 import Tilesets
 
 /// The knot, edited by touch: a tap on a grid point toggles it, a drag along
-/// a row or column cuts there.
+/// a row or column cuts there. In clear mode, a drag spans a rectangle whose
+/// cells are emptied instead.
 ///
 /// Fills the space it is given. Until there is a knot, it asks for one with
 /// as many cells as fit; after that the knot keeps its size, and is drawn
@@ -54,8 +55,8 @@ enum KnotMetrics {
     }
 }
 
-/// The knot at a given size, with the gesture that edits it and the line
-/// that shows a cut in progress.
+/// The knot at a given size, with the gesture that edits it and the line or
+/// rectangle that shows a drag in progress.
 private struct KnotEditor: View {
     let model: AppModel
     let rows: Int
@@ -73,27 +74,50 @@ private struct KnotEditor: View {
             hasPointedCorners: model.hasPointedCorners
         ).frame(width: CGFloat(cols * 2) * tileSide, height: CGFloat(rows * 2) * tileSide).overlay {
             if let drag {
-                let start = point(nearest: drag.startLocation)
-                let end = point(nearest: drag.location)
-                CutPreview(
-                    start: start, end: end, tileSide: tileSide,
-                    isValid: start == end || isCut(from: start, to: end))
+                switch model.dragMode {
+                case .cut:
+                    let start = point(nearest: drag.startLocation)
+                    let end = point(nearest: drag.location)
+                    CutPreview(
+                        start: start, end: end, tileSide: tileSide,
+                        isValid: start == end || isCut(from: start, to: end))
+                case .clear:
+                    ClearPreview(
+                        start: corner(nearest: drag.startLocation),
+                        end: corner(nearest: drag.location), tileSide: tileSide)
+                }
             }
         }.contentShape(.rect).gesture(
             DragGesture(minimumDistance: 0).updating($drag) { value, drag, _ in drag = value }
                 .onEnded(didEndDrag)
         ).accessibilityElement().accessibilityLabel("Knot").accessibilityValue(
             "\(rows) by \(cols) cells"
-        ).accessibilityHint("Tap a grid point to change it, or drag along a line to cut the knot.")
+        ).accessibilityHint(accessibilityHint)
+    }
+
+    private var accessibilityHint: String {
+        switch model.dragMode {
+        case .cut: "Tap a grid point to change it, or drag along a line to cut the knot."
+        case .clear: "Drag across the knot to clear the cells in a rectangle."
+        }
     }
 
     private func didEndDrag(_ value: DragGesture.Value) {
-        let start = point(nearest: value.startLocation)
-        let end = point(nearest: value.location)
-        if start == end {
-            model.attempt(.toggle(start))
-        } else if isCut(from: start, to: end) {
-            model.attempt(.cut(from: start, to: end))
+        switch model.dragMode {
+        case .cut:
+            let start = point(nearest: value.startLocation)
+            let end = point(nearest: value.location)
+            if start == end {
+                model.attempt(.toggle(start))
+            } else if isCut(from: start, to: end) {
+                model.attempt(.cut(from: start, to: end))
+            }
+        case .clear:
+            let start = corner(nearest: value.startLocation)
+            let end = corner(nearest: value.location)
+            if start.x != end.x && start.y != end.y {
+                model.attempt(.clearCells(from: start, to: end))
+            }
         }
     }
 
@@ -110,6 +134,15 @@ private struct KnotEditor: View {
     private func point(nearest location: CGPoint) -> GridPoint {
         GridPoint(
             x: Int((location.x / tileSide).rounded()), y: Int((location.y / tileSide).rounded()))
+    }
+
+    /// The cell corner nearest `location`, kept on the grid, so that a drag
+    /// that runs off the knot clears up to its edge.
+    private func corner(nearest location: CGPoint) -> GridPoint {
+        func corner(_ length: CGFloat, cells: Int) -> Int {
+            2 * min(max(Int((length / (2 * tileSide)).rounded()), 0), cells)
+        }
+        return GridPoint(x: corner(location.x, cells: cols), y: corner(location.y, cells: rows))
     }
 }
 
@@ -131,6 +164,25 @@ private struct CutPreview: View {
 
     private func location(of point: GridPoint) -> CGPoint {
         CGPoint(x: CGFloat(point.x) * tileSide, y: CGFloat(point.y) * tileSide)
+    }
+}
+
+/// The rectangle that follows a drag in clear mode, snapped to cell corners:
+/// filled while letting go would clear it, an outline while it has no cells
+/// in it.
+private struct ClearPreview: View {
+    let start: GridPoint
+    let end: GridPoint
+    let tileSide: CGFloat
+
+    var body: some View {
+        let rect = CGRect(
+            x: CGFloat(min(start.x, end.x)) * tileSide, y: CGFloat(min(start.y, end.y)) * tileSide,
+            width: CGFloat(abs(end.x - start.x)) * tileSide,
+            height: CGFloat(abs(end.y - start.y)) * tileSide)
+        Path(rect).fill(.red.opacity(rect.width > 0 && rect.height > 0 ? 0.25 : 0)).stroke(
+            .red, style: StrokeStyle(lineWidth: 5, lineCap: .round, lineJoin: .round)
+        ).allowsHitTesting(false)
     }
 }
 

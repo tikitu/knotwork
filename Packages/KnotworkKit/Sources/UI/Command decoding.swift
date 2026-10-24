@@ -25,13 +25,16 @@ extension GridPoint: Decodable {
 /// pattern).
 extension AppCommand: InboxCommand {
     private enum Name: String, CommandName {
-        case newGrid, toggle, cut, setTiles, setPointedCorners, showSettings
+        case newGrid, toggle, cut, clearCells, clearAll, fillAll, setDragMode, setTiles
+        case setPointedCorners, showSettings
 
         var fields: Set<String> {
             switch self {
             case .newGrid: ["rows", "cols"]
             case .toggle: ["at"]
-            case .cut: ["from", "to"]
+            case .cut, .clearCells: ["from", "to"]
+            case .clearAll, .fillAll: []
+            case .setDragMode: ["mode"]
             case .setTiles: ["style"]
             case .setPointedCorners: ["on"]
             case .showSettings: ["shown"]
@@ -39,7 +42,7 @@ extension AppCommand: InboxCommand {
         }
     }
 
-    private enum Field: String, CodingKey { case rows, cols, at, from, to, style, on, shown }
+    private enum Field: String, CodingKey { case rows, cols, at, from, to, mode, style, on, shown }
 
     public init(from decoder: any Decoder) throws {
         let command = try StrictCommand<Name>(from: decoder)
@@ -54,6 +57,10 @@ extension AppCommand: InboxCommand {
                 cols: try fields.decode(Int.self, forKey: .cols))
         case .toggle: self = .toggle(try point(.at))
         case .cut: self = .cut(from: try point(.from), to: try point(.to))
+        case .clearCells: self = .clearCells(from: try point(.from), to: try point(.to))
+        case .clearAll: self = .clearAll
+        case .fillAll: self = .fillAll
+        case .setDragMode: self = .setDragMode(try fields.decode(DragMode.self, forKey: .mode))
         case .setTiles: self = .setTiles(try fields.decode(TileStyle.self, forKey: .style))
         case .setPointedCorners:
             self = .setPointedCorners(try fields.decode(Bool.self, forKey: .on))

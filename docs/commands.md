@@ -84,9 +84,13 @@ where both are odd, it is the centre of a cell.
 | `newGrid` | `rows`, `cols` | Replaces the knot with a fresh one, bordered all round. 1 to 200 cells each way. At launch the view does this itself, with as many cells as fit. |
 | `toggle` | `at` | A tap. On a segment, cycles its break line: horizontal, vertical, none. On a cell's centre, empties the cell or refills it. |
 | `cut` | `from`, `to` | A drag. Toggles break lines all along a straight line along a row or column. A diagonal, a point off the grid, or a cut that goes nowhere is an error. |
-| `setTiles` | `style` | Draws the tiles as `"original"` (Boston-Baden's images), `"smooth"` or `"sketch"`. The appearance settings' picker. |
-| `setPointedCorners` | `on` | Whether the knot's corners come to a sharp point (`true`, as in the original images) or keep the band's width. Drawn tiles only. The appearance settings' switch. |
-| `showSettings` | `shown` | Shows or hides the appearance settings, below the knot. The toolbar's palette button. |
+| `clearCells` | `from`, `to` | A drag in clear mode. Empties every cell in the rectangle with these corners, which must be cell corners (`x` and `y` both even) on the grid that differ both ways. The strands round it stay joined, since an empty cell is walled in. |
+| `clearAll` | none (`{}`) | Empties every cell, and takes away every break line but the border, so refilling a cell brings back no old cuts. The controls' Clear All button. |
+| `fillAll` | none (`{}`) | Fills every cell, with no break lines but the border: a fresh knot the same size. The controls' Fill All button. |
+| `setDragMode` | `mode` | What a drag does: `"cut"` (along a row or column; a tap changes a point) or `"clear"` (a rectangle, snapped to cell corners, is emptied; a tap does nothing). The controls' Drag picker. |
+| `setTiles` | `style` | Draws the tiles as `"original"` (Boston-Baden's images), `"smooth"` or `"sketch"`. The controls' Tiles picker. |
+| `setPointedCorners` | `on` | Whether the knot's corners come to a sharp point (`true`, as in the original images) or keep the band's width. Drawn tiles only. The controls' switch. |
+| `showSettings` | `shown` | Shows or hides the controls, below the knot. The toolbar's palette button. |
 
 ```json
 {
@@ -104,6 +108,17 @@ where both are odd, it is the centre of a cell.
     { "showSettings": { "shown": true } },
     { "setTiles": { "style": "sketch" } },
     { "setPointedCorners": { "on": false } }
+  ]
+}
+```
+
+```json
+{
+  "commands": [
+    { "clearAll": {} },
+    { "fillAll": {} },
+    { "setDragMode": { "mode": "clear" } },
+    { "clearCells": { "from": [2, 2], "to": [6, 4] } }
   ]
 }
 ```

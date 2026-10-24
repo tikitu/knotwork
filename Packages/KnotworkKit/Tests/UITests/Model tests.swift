@@ -99,6 +99,61 @@ struct ModelTests {
     }
 
     @Test
+    func `clearing everything empties every tile, and filling makes a fresh knot`() throws {
+        try model.perform(.newGrid(rows: 2, cols: 3))
+        let fresh = model.tiles
+        try model.perform(.cut(from: GridPoint(x: 2, y: 0), to: GridPoint(x: 2, y: 4)))
+        try model.perform(.clearAll)
+        #expect(model.tiles.joined().allSatisfy { $0 == .empty })
+        try model.perform(.fillAll)
+        #expect(model.tiles == fresh)
+    }
+
+    @Test
+    func `clearing a rectangle empties its cells`() throws {
+        try model.perform(.newGrid(rows: 2, cols: 3))
+        try model.perform(.clearCells(from: GridPoint(x: 6, y: 4), to: GridPoint(x: 4, y: 2)))
+        #expect(model.tiles[2][4] == .empty)
+        #expect(model.tiles[3][5] == .empty)
+        #expect(model.tiles.joined().count { $0 == .empty } == 4)
+    }
+
+    @Test(arguments: [
+        (GridPoint(x: 0, y: 0), GridPoint(x: 2, y: 0)),
+        (GridPoint(x: 0, y: 0), GridPoint(x: 0, y: 0)),
+        (GridPoint(x: 1, y: 0), GridPoint(x: 4, y: 2)),
+        (GridPoint(x: 0, y: 1), GridPoint(x: 4, y: 4)),
+    ])
+    func `a rectangle to clear runs between cell corners and has cells in it`(
+        start: GridPoint, end: GridPoint
+    ) throws {
+        try model.perform(.newGrid(rows: 2, cols: 3))
+        #expect(throws: CommandError.notRectangle(start, end)) {
+            try model.perform(.clearCells(from: start, to: end))
+        }
+    }
+
+    @Test
+    func `clearing needs a knot, and stays on it`() throws {
+        #expect(throws: CommandError.noGrid) { try model.perform(.clearAll) }
+        #expect(throws: CommandError.noGrid) { try model.perform(.fillAll) }
+        try model.perform(.newGrid(rows: 2, cols: 3))
+        let outside = GridPoint(x: 8, y: 2)
+        #expect(throws: CommandError.offGrid(outside)) {
+            try model.perform(.clearCells(from: GridPoint(x: 0, y: 0), to: outside))
+        }
+    }
+
+    @Test
+    func `a drag cuts until the mode is changed`() throws {
+        #expect(model.dragMode == .cut)
+        try model.perform(.setDragMode(.clear))
+        #expect(model.dragMode == .clear)
+        model.dragModeSetting = .cut
+        #expect(model.dragMode == .cut)
+    }
+
+    @Test
     func `appearance settings start hidden, with smooth pointed tiles`() {
         #expect(!model.isShowingSettings)
         #expect(model.tileStyle == .smooth)

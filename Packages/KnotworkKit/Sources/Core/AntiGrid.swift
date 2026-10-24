@@ -125,6 +125,31 @@ public struct AntiGrid: Equatable, Sendable {
             length: abs(end.x - start.x + end.y - start.y))
     }
 
+    /// Every cell empty: a blank page. Every break line inside the border
+    /// goes too, so that refilling cells later does not bring back old cuts
+    /// that were hidden.
+    public mutating func emptyAll() {
+        fillAll()
+        empty = empty.map { $0.map { _ in true } }
+    }
+
+    /// Every cell full, with no break lines but the border: a fresh knot.
+    public mutating func fillAll() {
+        self = AntiGrid(rows: rows, cols: cols)
+        addBorders()
+    }
+
+    /// Empties every cell in the rectangle with corners `start` and `end`,
+    /// which must be cell corners (both coordinates even) on the grid. The
+    /// strands round it stay joined, because an empty cell is walled in.
+    public mutating func empty(from start: GridPoint, to end: GridPoint) {
+        precondition(contains(start) && contains(end))
+        precondition([start.x, start.y, end.x, end.y].allSatisfy { $0 % 2 == 0 })
+        for row in min(start.y, end.y) / 2..<max(start.y, end.y) / 2 {
+            for col in min(start.x, end.x) / 2..<max(start.x, end.x) / 2 { empty[row][col] = true }
+        }
+    }
+
     /// What a tap does: on a segment, cycles it through horizontal, vertical
     /// and no break line; in the middle of a cell, empties or refills it.
     public mutating func toggle(x: Int, y: Int) {
