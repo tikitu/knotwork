@@ -53,7 +53,7 @@ Packages/KnotworkKit/      shared: macOS and iOS, tested on the Mac
                   style
   TileSheets      `make tile-sheets`: every tileset beside the original
                   images, as PNGs in build/tilesets/
-  UI              AppModel, AppCommand, the command inbox, the knot view
+  UI              AppModel, AppCommand and its decoding, the knot view
 Packages/KnotworkIOSKit/   iOS only: the root view and the app delegate
 apps/ios/                  project.yml (XcodeGen) and the app target, a
                            forwarding shell over KnotworkIOSKit
@@ -71,7 +71,7 @@ one.
 
 **Dependencies are pinned.** Each package's `Package.resolved` is committed,
 and every build uses exactly those versions or fails (the `Makefile` says
-how). There are none yet.
+how). There is one: app-utils, for the command inbox.
 
 ## Documentation
 

@@ -7,6 +7,8 @@ imports:
     app-tooling|git-commit-stamp-docs: docs/app-tooling/git-commit-stamp/
     app-tooling|build-warnings: ./
     app-tooling|build-warnings-docs: docs/app-tooling/build-warnings/
+    app-tooling|command-inbox: ./
+    app-tooling|command-inbox-docs: docs/app-tooling/command-inbox/
 
 git module app-tooling:
     url: https://github.com/tikitu/app-tooling
@@ -30,3 +32,9 @@ rule build-warnings:
 rule build-warnings-docs:
     pick: [patterns/build-warnings/README.md, patterns/build-warnings/apply.md, patterns/build-warnings/CHANGELOG.md]
     export: patterns/build-warnings
+
+rule command-inbox:
+    export: patterns/command-inbox/files
+rule command-inbox-docs:
+    pick: [patterns/command-inbox/README.md, patterns/command-inbox/apply.md, patterns/command-inbox/CHANGELOG.md, patterns/command-inbox/guide.md]
+    export: patterns/command-inbox

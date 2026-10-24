@@ -2,7 +2,7 @@ import Core
 
 /// Everything a person can do in the app, as a value.
 ///
-/// The gestures perform these, and so does ``CommandInbox``, which is how a
+/// The gestures perform these, and so does the command inbox, which is how a
 /// scripted run drives the app without touches. Because both go through
 /// ``AppModel/perform(_:)``, a script exercises the same code a touch does.
 /// **A control that bypasses `perform` is a bug.** Adding one means adding
@@ -23,7 +23,7 @@ public enum AppCommand: Equatable, Sendable {
     case showSettings(Bool)
 
     /// The command's name in a command file.
-    var name: String {
+    public var name: String {
         switch self {
         case .newGrid: "newGrid"
         case .toggle: "toggle"

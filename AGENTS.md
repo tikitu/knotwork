@@ -14,6 +14,11 @@ commands. `docs/` has the depth.
   `make ios-screenshot` captures it. Touches can be checked with Xcode's
   device-interaction tools (`docs/ios.md` has the traps).
 
+* `scripts/send-commands.sh '<json>'` drives the app started by `make
+  ios-run-commands`, with no touches and nothing coming to the front, and
+  prints what each command did. `docs/commands.md` has the commands, and
+  why the sender reaches only the *booted* simulator.
+
 * **Every gesture performs an `AppCommand` through `AppModel.perform(_:)`.** A
   control that does the work itself is a path no script can reach. Adding one
   means adding its command, its row in `docs/commands.md`, and its case in
@@ -52,8 +57,9 @@ read it before changing anything a pattern covers.
   and in the app target (`project.yml`). Mark `@MainActor` explicitly where
   it is needed.
 
-* No dependencies yet. If one is needed, pin it: commit `Package.resolved`
-  and build with the pinned versions (the `Makefile` says how).
+* One dependency, app-utils (for the command inbox), pinned `exact:` in both
+  packages. Pin any other: commit `Package.resolved` and build with the
+  pinned versions (the `Makefile` says how).
 
 * **Filenames with spaces are this repo's style**: `Knot view.swift`,
   `Root view.swift`. Preserve them.

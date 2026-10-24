@@ -17,12 +17,19 @@ let package = Package(
     products: [
         // Linked by the app target in apps/ios, a forwarding shell over this.
         .library(name: "KnotworkIOS", targets: ["KnotworkIOS"])
-    ], dependencies: [.package(path: "../KnotworkKit")],
+    ],
+    dependencies: [
+        .package(path: "../KnotworkKit"),
+        // The simulator's command inbox (docs/commands.md); the same pin as
+        // KnotworkKit's.
+        .package(url: "https://github.com/tikitu/app-utils", exact: "0.4.0"),
+    ],
     targets: [
         .target(
             name: "KnotworkIOS",
             dependencies: [
                 .product(name: "Core", package: "KnotworkKit"),
                 .product(name: "UI", package: "KnotworkKit"),
+                .product(name: "CommandInbox", package: "app-utils"),
             ], swiftSettings: shared)
     ])

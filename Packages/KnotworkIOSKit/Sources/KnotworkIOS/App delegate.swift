@@ -1,3 +1,4 @@
+import CommandInbox
 import UI
 import UIKit
 
@@ -9,12 +10,22 @@ import UIKit
 public final class KnotworkAppDelegate: NSObject, UIApplicationDelegate {
     public let model = AppModel()
 
+    /// Commands from scripts, only under `--accept-commands`, so the app on a
+    /// phone never listens (docs/commands.md). Held here for the app's
+    /// lifetime: the inbox stops hearing its notification once released.
+    private var commandInbox: CommandInbox<AppCommand>?
+
     public func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        if ProcessInfo.processInfo.arguments.contains(CommandInbox.launchArgument) {
-            CommandInbox.shared.start(model: model)
+        if ProcessInfo.processInfo.arguments.contains("--accept-commands") {
+            let model = model
+            commandInbox = CommandInbox(
+                directory: InboxDirectory.applicationSupport,
+                notificationName: "org.logophile.Knotwork.commands"
+            ) { CommandReply(try model.perform($0)) }
+            commandInbox?.start()
         }
         return true
     }

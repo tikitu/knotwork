@@ -17,13 +17,14 @@ let shared: [SwiftSetting] = [.swiftLanguageMode(.v6), .defaultIsolation(nil)]
 // compiles it for both. Platform-only code lives in a package whose manifest
 // names that platform alone (KnotworkIOSKit), never behind `#if os(…)`.
 //
-// No dependencies yet: there is no data to store or share.
+// One dependency, pinned in Package.resolved: app-utils, for the command
+// inbox (docs/commands.md).
 let package = Package(
     name: "KnotworkKit", platforms: [.macOS(.v26), .iOS(.v26)],
     products: [
         .library(name: "Core", targets: ["Core"]),
         .library(name: "Tilesets", targets: ["Tilesets"]), .library(name: "UI", targets: ["UI"]),
-    ],
+    ], dependencies: [.package(url: "https://github.com/tikitu/app-utils", exact: "0.4.0")],
     targets: [
         // The knot itself: break lines and the tiles they make. No UI.
         .target(name: "Core", swiftSettings: shared),
@@ -36,10 +37,15 @@ let package = Package(
             name: "TileSheets", dependencies: ["Core", "Tilesets"], swiftSettings: shared),
         // The model, the commands, and the views.
         .target(
-            name: "UI", dependencies: ["Core", "Tilesets"], resources: [.copy("Resources/Tiles")],
-            swiftSettings: shared),
+            name: "UI",
+            dependencies: [
+                "Core", "Tilesets", .product(name: "CommandInbox", package: "app-utils"),
+            ], resources: [.copy("Resources/Tiles")], swiftSettings: shared),
         .testTarget(name: "CoreTests", dependencies: ["Core"], swiftSettings: shared),
         .testTarget(
             name: "TilesetsTests", dependencies: ["Core", "Tilesets"], swiftSettings: shared),
-        .testTarget(name: "UITests", dependencies: ["UI"], swiftSettings: shared),
+        .testTarget(
+            name: "UITests",
+            dependencies: ["UI", .product(name: "CommandInbox", package: "app-utils")],
+            swiftSettings: shared),
     ])

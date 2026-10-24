@@ -13,6 +13,13 @@ params = { ios_target = "Knotwork" }
 # (OMIT_DYNAMIC_TEST_SUPPORT) changes nothing yet, with no dependencies.
 [patterns.build-warnings]
 
+# The iOS form only: the inbox in the simulator's Application Support, started
+# under --accept-commands (make ios-run-commands) rather than on every
+# simulator launch, and the sender's --simulator. No Mac app, so no
+# --commands <dir>.
+[patterns.command-inbox]
+params = { package = "Packages/KnotworkKit", notification = "org.logophile.Knotwork.commands", simulator = "org.logophile.Knotwork" }
+
 [declined.testflight]
 as_of = "v0.5.1"
 reason = """not yet: needs the owner's answers (export compliance, which devices get builds \

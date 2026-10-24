@@ -1,3 +1,4 @@
+import CommandInbox
 import Core
 import Foundation
 import Testing
@@ -75,7 +76,7 @@ struct ModelTests {
     }
 
     @Test
-    func `the inbox runs commands in order and stops at the first failure`() {
+    func `the inbox runs commands in order and stops at the first failure`() async {
         let json = #"""
             {"id": "r1", "commands": [
               {"newGrid": {"rows": 2, "cols": 2}},
@@ -83,7 +84,11 @@ struct ModelTests {
               {"toggle": {"at": [1, 1]}}
             ]}
             """#
-        let result = CommandInbox.run(Data(json.utf8), on: model)
+        let model = model
+        let inbox = CommandInbox<AppCommand>(
+            directory: URL.temporaryDirectory, notificationName: "org.logophile.Knotwork.tests"
+        ) { CommandReply(try model.perform($0)) }
+        let result = await inbox.run(Data(json.utf8))
         #expect(result.requestID == "r1")
         #expect(result.completed.map(\.command) == ["newGrid"])
         #expect(

@@ -5,9 +5,26 @@ rather than merely compiled, and it is why `AppModel` exists at all.
 
 ```sh
 make ios-run-commands               # simulator, accepting commands; prints its UDID
-IOS_SIM=<udid> scripts/send-commands.sh '{"commands":[{"newGrid":{"rows":4,"cols":6}}]}'
+scripts/send-commands.sh '{"commands":[{"newGrid":{"rows":4,"cols":6}}]}'
 make ios-screenshot                 # build/simulator.png
 ```
+
+The transport, the file format, the result and the inbox's own commands
+(`pause`, `snapshot`) are app-tooling's `command-inbox` pattern, in
+[`app-tooling/command-inbox/guide.md`](app-tooling/command-inbox/guide.md):
+the runner is app-utils' `CommandInbox`, and `scripts/send-commands.sh`
+calls the imported `scripts/command-inbox-send.sh`. This document has what
+is Knotwork's: where the inbox is on, and the commands.
+
+**The sender targets the *booted* simulator** (`xcrun simctl … booted`),
+whichever simctl picks when several are booted: possibly another copy of
+the app, or a simulator without it ("not installed in a booted
+simulator"). Keep one booted, or do the sender's steps by UDID: write
+`inbox.json` into `Library/Application Support/Commands/` of
+`xcrun simctl get_app_container <udid> org.logophile.Knotwork data`, then
+`xcrun simctl spawn <udid> notifyutil -p org.logophile.Knotwork.commands`,
+and read `result.json` beside it. app-tooling's ticket 27EFXRY is for a
+`--device` option.
 
 ## The invariant
 
@@ -26,25 +43,13 @@ command (`toggle` or `cut`).
 
 The app accepts commands only when launched with `--accept-commands`, which
 `make ios-run-commands` passes. Launched any other way, from the home screen
-or by `make ios-run`, it does not listen. There is no stored data yet, so
-there is no scratch mode: the knot lives in memory and is gone when the app
-quits.
+or by `make ios-run`, it does not listen; nor does a launch by the sender
+itself, which passes no arguments, so start the app with `make
+ios-run-commands` first. There is no stored data yet, so there is no
+scratch mode: the knot lives in memory and is gone when the app quits.
 
-## The transport
-
-A Darwin notification carries no arguments, so the commands go in a file:
-
-1. The sender writes `inbox.json` into `Library/Application Support/Commands/`
-   in the app's data container (`xcrun simctl get_app_container booted
-   org.logophile.Knotwork data`), writing it aside and moving it into place
-   so the app never reads half a file.
-2. The sender posts the Darwin notification `org.logophile.Knotwork.commands`
-   inside the simulator (`xcrun simctl spawn booted notifyutil -p …`).
-3. The app deletes the inbox, runs the commands **in order, stopping at the
-   first failure**, and writes `result.json` beside it.
-4. The sender reads `result.json` and exits non-zero if it holds an `error`.
-
-An inbox already waiting when the app launches runs at startup.
+The inbox is `Library/Application Support/Commands/` in the app's data
+container. An inbox already waiting when the app launches runs at startup.
 
 ## The file format
 
@@ -60,10 +65,9 @@ An inbox already waiting when the app launches runs at startup.
 ```
 
 A command is an object with **exactly one key**, its name. Decoding is
-strict: an unknown command, an unknown field, or more than one key is an
-error rather than something ignored, so a typo cannot quietly do nothing.
+strict (the guide says how), so a typo cannot quietly do nothing.
 
-`CommandFileTests` decodes every JSON example in this file verbatim, so if the
+`CommandFileTests` decodes every JSON request example in this file verbatim, so if the
 format changes and this document does not, the test fails.
 
 ### Grid points
@@ -106,6 +110,8 @@ where both are odd, it is the centre of a cell.
 
 ## The result file
 
+As the guide says. A command's `message` says what it did:
+
 ```json
 {
   "requestID" : "the id from the request, if it had one",
@@ -123,6 +129,8 @@ On failure the run stops there and `error` is present:
   "error" : "cut failed: a cut runs straight along a row or column; (0, 0) to (2, 2) does not"
 }
 ```
+
+There is no `state` command: `make ios-screenshot` shows the knot.
 
 ## Seeing what happened
 

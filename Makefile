@@ -167,7 +167,7 @@ ios-run: ios-build
 ios-run-commands: ios-build
 	$(call ios-install-and-launch,--accept-commands)
 	@echo "✓ launched on $(IOS_SIM) ($(IOS_SIM_UDID)), accepting commands:"
-	@echo "  IOS_SIM=$(IOS_SIM_UDID) scripts/send-commands.sh '<json>'"
+	@echo "  scripts/send-commands.sh '<json>'   (the booted simulator: docs/commands.md)"
 
 ios-screenshot:
 	@mkdir -p build

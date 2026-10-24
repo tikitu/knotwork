@@ -7,7 +7,7 @@ private let logger = Logger(subsystem: "org.logophile.Knotwork", category: "AppM
 /// The app's state, and the one place commands are performed.
 ///
 /// Every gesture calls ``perform(_:)`` (through ``attempt(_:)``), and so does
-/// ``CommandInbox``. That is what makes a scripted run exercise the same code
+/// the command inbox. That is what makes a scripted run exercise the same code
 /// a touch does. See `docs/commands.md`.
 @MainActor
 @Observable
@@ -88,7 +88,7 @@ public final class AppModel {
     }
 
     /// Performs a command from a control, logging a failure rather than
-    /// throwing into SwiftUI. Controls call this; ``CommandInbox`` calls
+    /// throwing into SwiftUI. Controls call this; the command inbox calls
     /// `perform` directly, because a command file wants the error in its
     /// result.
     public func attempt(_ command: AppCommand) {
