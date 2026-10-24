@@ -37,7 +37,7 @@ public struct AntiGrid: Equatable, Sendable {
         self.breaklines = breaklines
         self.rows = rows
         self.cols = cols
-        self.empty = [[Bool]](repeating: [Bool](repeating: false, count: cols * 2), count: rows * 2)
+        self.empty = [[Bool]](repeating: [Bool](repeating: false, count: cols), count: rows)
     }
 
     /// Whether `point` is on the grid, borders included.
@@ -45,10 +45,32 @@ public struct AntiGrid: Equatable, Sendable {
         (0...cols * 2).contains(point.x) && (0...rows * 2).contains(point.y)
     }
 
+    /// Whether the cell at `row`, `col` is empty; `false` off the grid.
+    private func isEmpty(row: Int, col: Int) -> Bool {
+        (0..<rows).contains(row) && (0..<cols).contains(col) && empty[row][col]
+    }
+
+    /// The break line at index `i` of row `y` of `breaklines`, as drawn: an
+    /// empty cell is walled in, so on the middle of its sides the wall
+    /// replaces whatever break line is stored there. (Adding the wall to the
+    /// stored line instead gives a tile two breaks at one crossing, which no
+    /// tile shows, and leaves loose ends.)
+    private func line(y: Int, i: Int) -> BreakLine {
+        if y % 2 == 0 {
+            // The middle of a cell's top or bottom.
+            if isEmpty(row: y / 2 - 1, col: i) || isEmpty(row: y / 2, col: i) { return .h }
+        } else {
+            // The middle of a cell's left or right side.
+            if isEmpty(row: y / 2, col: i - 1) || isEmpty(row: y / 2, col: i) { return .v }
+        }
+        return breaklines[y][i]
+    }
+
     private func edges(x: Int, y: Int) -> Set<Edge> {
+        if empty[y / 2][x / 2] { return [.n, .s, .w, .e] }
         let odd = y % 2 == 1
-        let above = breaklines[y][(x + (odd ? 1 : 0)) / 2]
-        let below = breaklines[y + 1][(x + (odd ? 0 : 1)) / 2]
+        let above = line(y: y, i: (x + (odd ? 1 : 0)) / 2)
+        let below = line(y: y + 1, i: (x + (odd ? 0 : 1)) / 2)
         var edges = Set<Edge>()
         switch above {
         case .h: edges.insert(.n)
@@ -60,11 +82,6 @@ public struct AntiGrid: Equatable, Sendable {
         case .v: edges.insert((x + y) % 2 == 0 ? .w : .e)
         case .o: break
         }
-        if empty[(y - 1) / 2][x / 2] { edges.insert(.n) }
-        if empty[y / 2][(x - 1) / 2] { edges.insert(.w) }
-        if empty[(y + 1) / 2][x / 2] { edges.insert(.s) }
-        if empty[y / 2][(x + 1) / 2] { edges.insert(.e) }
-        if empty[y / 2][x / 2] { edges.formUnion([.n, .s, .w, .e]) }
         return edges
     }
 
