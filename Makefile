@@ -80,17 +80,23 @@ help:
 # ---------------------------------------------------------------------------
 # Pinned dependencies
 #
-# There are none yet. When the first arrives, commit each package's
-# Package.resolved, build with `--force-resolved-versions` (swift) and
-# `-onlyUsePackageVersionsFromResolvedFile` (xcodebuild), and copy
-# KnotworkIOSKit's lockfile into the generated project in `ios-project`, as
-# docs/ios.md says.
+# Each package's Package.resolved is committed, and every build uses exactly
+# those versions or fails, rather than resolving past them and rewriting the
+# file: `--force-resolved-versions` for swift, and
+# `-onlyUsePackageVersionsFromResolvedFile` (in XCODE_FLAGS) for xcodebuild.
+# The generated Xcode project has no lockfile of its own: `ios-project` copies
+# KnotworkIOSKit's into it, since the app's dependencies are that package's.
+# Updating a dependency is a deliberate change of the committed files.
 # ---------------------------------------------------------------------------
+
+SWIFT_FLAGS          := --package-path $(SHARED) --force-resolved-versions
+IOS_RESOLVED         := $(IOS_PACKAGE)/Package.resolved
+IOS_PROJECT_RESOLVED := $(IOS_PROJECT)/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
 
 # Every xcodebuild passes these. `-skipMacroValidation` because xcodebuild
 # refuses a package's macros until someone clicks "Trust & Enable", which a
 # script cannot; there are no package macros yet, so this costs nothing.
-XCODE_FLAGS := -skipMacroValidation
+XCODE_FLAGS := -skipMacroValidation -onlyUsePackageVersionsFromResolvedFile
 
 # ---------------------------------------------------------------------------
 # Build and test
@@ -100,7 +106,7 @@ XCODE_FLAGS := -skipMacroValidation
 # of Mac-only API, and the Mac one of iOS-only API; LM_SKIP_METADATA_EXTRACTION
 # because a package scheme has no settings of its own (build-warnings).
 check:
-	swift build --package-path $(SHARED)
+	swift build $(SWIFT_FLAGS)
 	@cd $(SHARED) && xcodebuild -scheme KnotworkKit-Package -destination 'generic/platform=iOS' \
 	  -derivedDataPath $(CURDIR)/build/ios-check $(XCODE_FLAGS) LM_SKIP_METADATA_EXTRACTION=YES -quiet build
 	@echo "✓ shared package compiles for macOS and iOS"
@@ -108,19 +114,19 @@ check:
 # The tests live with the shared code; the iOS package is the root view and
 # the app delegate.
 test:
-	swift test --package-path $(SHARED)
+	swift test $(SWIFT_FLAGS)
 	@echo "✓ tests pass"
 
 # The tilesets drawn in code, beside Boston-Baden's images, as PNGs: each tile
 # on its own, and some knots made of them.
 tile-sheets:
-	swift run --package-path $(SHARED) TileSheets $(SHARED)/Sources/UI/Resources/Tiles build/tilesets
+	swift run $(SWIFT_FLAGS) TileSheets $(SHARED)/Sources/UI/Resources/Tiles build/tilesets
 
 # The app's icon is drawn by the same code as the tiles; committed, so a build
 # needs no step of its own. Run this after changing how the tiles look.
 APP_ICON := $(IOS_DIR)/App/Assets.xcassets/AppIcon.appiconset/AppIcon.png
 app-icon:
-	swift run --package-path $(SHARED) TileSheets --icon $(APP_ICON)
+	swift run $(SWIFT_FLAGS) TileSheets --icon $(APP_ICON)
 
 clean:
 	rm -rf build $(SHARED)/.build $(IOS_PACKAGE)/.build
@@ -136,6 +142,7 @@ clean:
 ios-project:
 	@command -v xcodegen >/dev/null 2>&1 || { echo "✗ xcodegen not installed (brew install xcodegen)"; exit 1; }
 	cd $(IOS_DIR) && xcodegen generate --quiet
+	@if [ -f $(IOS_RESOLVED) ]; then mkdir -p $(dir $(IOS_PROJECT_RESOLVED)) && cp $(IOS_RESOLVED) $(IOS_PROJECT_RESOLVED); fi
 	@echo "✓ generated $(IOS_PROJECT)"
 
 # Unsigned, for the simulator: no provisioning profile needed.

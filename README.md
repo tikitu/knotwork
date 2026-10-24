@@ -69,8 +69,9 @@ docs/                      how the app works, in depth
 iOS, so its tests run on the Mac and a Mac app could be added beside the iOS
 one.
 
-**Dependencies are pinned.** There are none yet; the `Makefile` says what to
-do when the first arrives.
+**Dependencies are pinned.** Each package's `Package.resolved` is committed,
+and every build uses exactly those versions or fails (the `Makefile` says
+how). There are none yet.
 
 ## Documentation
 
