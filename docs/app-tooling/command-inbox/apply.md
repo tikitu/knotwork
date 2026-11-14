@@ -199,7 +199,11 @@ exec "$ROOT/scripts/command-inbox-send.sh" \
 
 with the directory the Makefile passes (`"$HOME/Library/Caches/MyApp-scratch/Commands"`
 when sandboxed). For an iOS app, `--simulator <bundle id>` in place of
-`--dir` and `--process`, or a first argument choosing between the two.
+`--dir` and `--process`, or a first argument choosing between the two, and
+`--udid` with the UDID of the simulator the project runs the app on (the
+one its `make ios-run` installs to). Without `--udid` the script uses
+`booted`, and with several simulators booted `simctl` picks one, which may
+not have the app.
 
 **7. `docs/commands.md`**, the project's: how to start a scratch run and
 send commands, the invariant (every control performs a command through

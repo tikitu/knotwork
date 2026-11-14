@@ -50,7 +50,8 @@ The pattern supplies, with app-utils:
 - **`scripts/command-inbox-send.sh`**, the sender, with the notification
   name, the directory and the process to expect as options. It refuses at
   once when no app is listening, rather than timing out. `--simulator <bundle
-  id>` sends to an iOS app in the booted simulator instead.
+  id>` sends to an iOS app in a simulator instead: the booted one, or the
+  one `--udid <id>` names, which it needs when several are booted.
 - **[`guide.md`](guide.md)**, the transport, file format, result and the
   inbox's own commands, which the project's `docs/commands.md` refers to
   rather than repeats.

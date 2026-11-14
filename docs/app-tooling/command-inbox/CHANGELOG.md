@@ -1,5 +1,16 @@
 # command-inbox changelog
 
+## v0.9.0 (2026-11-14)
+
+- **`command-inbox-send.sh --udid <id>`** names the simulator for
+  `--simulator`, in all three `simctl` calls (finding the container,
+  launching, notifying). Without it the script uses `booted`, as before,
+  and with several simulators booted that picks one that may not have the
+  app ("not installed in a booted simulator"), or sends to the wrong one.
+  A project with an iOS app: `make app-tooling-update`, then make its
+  simulator send path pass the UDID it already uses for `make ios-run`
+  (`apply.md`, step 6). A project without one: update only.
+
 ## v0.6.0 (2026-10-24)
 
 First version, from the starter's command inbox and three apps' copies of

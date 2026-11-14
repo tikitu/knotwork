@@ -11,30 +11,33 @@
 #
 # Usage:
 #   command-inbox-send.sh --notification <name> --dir <dir> --process <pattern> [--timeout <s>] '<json>'|@file.json
-#   command-inbox-send.sh --notification <name> --simulator <bundle id> [--timeout <s>] '<json>'|@file.json
+#   command-inbox-send.sh --notification <name> --simulator <bundle id> [--udid <id>] [--timeout <s>] '<json>'|@file.json
 #
 #   --notification  the Darwin notification the app listens for
 #   --dir           the inbox directory the app was given (--commands <dir>)
 #   --process       a `pgrep -f` pattern matching only the app running with its
 #                   inbox (an absolute path to this checkout's build, and
 #                   --commands): with no match, it refuses rather than time out
-#   --simulator     an iOS app in the booted simulator, instead of --dir and
+#   --simulator     an iOS app in a simulator, instead of --dir and
 #                   --process: the inbox is `Commands` in its Application
 #                   Support, and the app is launched first if it is not running
+#   --udid          with --simulator, the simulator's UDID (default `booted`,
+#                   which with several booted picks one, maybe without the app)
 #   --timeout       seconds to wait for the result (default 60)
 #
 # Prints the app's result.json; exits 1 if a command failed or no result came.
 set -euo pipefail
 
-usage() { sed -n '12,25p' "$0" >&2; exit 2; }
+usage() { sed -n '12,27p' "$0" >&2; exit 2; }
 
-notification="" dir="" process="" simulator="" timeout=60
+notification="" dir="" process="" simulator="" udid="" timeout=60
 while [ $# -gt 1 ]; do
 	case "$1" in
 	--notification) notification="$2" ;;
 	--dir) dir="$2" ;;
 	--process) process="$2" ;;
 	--simulator) simulator="$2" ;;
+	--udid) udid="$2" ;;
 	--timeout) timeout="$2" ;;
 	*) usage ;;
 	esac
@@ -45,19 +48,24 @@ request="$1"
 
 if [ -n "$simulator" ]; then
 	[ -z "$dir$process" ] || usage
-	data="$(xcrun simctl get_app_container booted "$simulator" data)" || {
-		echo "✗ $simulator is not installed in a booted simulator" >&2
+	device="${udid:-booted}"
+	data="$(xcrun simctl get_app_container "$device" "$simulator" data)" || {
+		if [ -n "$udid" ]; then
+			echo "✗ $simulator is not installed in simulator $udid, or it is not booted" >&2
+		else
+			echo "✗ $simulator is not installed in a booted simulator (with several booted, pass --udid)" >&2
+		fi
 		exit 1
 	}
 	dir="$data/Library/Application Support/Commands"
 	# Launching a running app only brings it forward inside the simulator; a
 	# cold launch runs the waiting inbox itself.
 	post() {
-		xcrun simctl launch booted "$simulator" >/dev/null
-		xcrun simctl spawn booted notifyutil -p "$notification"
+		xcrun simctl launch "$device" "$simulator" >/dev/null
+		xcrun simctl spawn "$device" notifyutil -p "$notification"
 	}
 else
-	[ -n "$dir" ] && [ -n "$process" ] || usage
+	[ -n "$dir" ] && [ -n "$process" ] && [ -z "$udid" ] || usage
 	# The app listens only where its data is disposable, so refuse rather than
 	# time out when it is not running that way.
 	pgrep -f "$process" >/dev/null || {
