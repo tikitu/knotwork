@@ -17,7 +17,7 @@ commands. `docs/` has the depth.
 * `scripts/send-commands.sh '<json>'` drives the app started by `make
   ios-run-commands`, with no touches and nothing coming to the front, and
   prints what each command did. `docs/commands.md` has the commands, and
-  why the sender reaches only the *booted* simulator.
+  which simulator the sender reaches (by UDID, never `booted`).
 
 * **Every gesture performs an `AppCommand` through `AppModel.perform(_:)`.** A
   control that does the work itself is a path no script can reach. Adding one

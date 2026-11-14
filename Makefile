@@ -43,7 +43,7 @@ include mk/app-tooling.mk
 include mk/build-warnings.mk
 
 .PHONY: all help check test tile-sheets app-icon fmt fmt-check rules lint clean \
-        ios-project ios-build ios-run ios-run-commands ios-screenshot \
+        ios-project ios-build ios-run ios-run-commands ios-screenshot ios-sim-udid \
         ios-device-build ios-device-run ios-device-which ios-clean
 
 all: check
@@ -62,6 +62,7 @@ help:
 	@echo "  ios-run           Build, install and launch on the simulator"
 	@echo "  ios-run-commands  The same, accepting commands (docs/commands.md)"
 	@echo "  ios-screenshot    Save the simulator's screen to build/simulator.png"
+	@echo "  ios-sim-udid      Print the UDID of the simulator (IOS_SIM) the iOS targets use"
 	@echo "  ios-device-build  Build signed for a connected device (IOS_DEVICE=...)"
 	@echo "  ios-device-run    Build and install on the device"
 	@echo "  ios-device-which  Which commit the app on the device was built from"
@@ -167,7 +168,11 @@ ios-run: ios-build
 ios-run-commands: ios-build
 	$(call ios-install-and-launch,--accept-commands)
 	@echo "✓ launched on $(IOS_SIM) ($(IOS_SIM_UDID)), accepting commands:"
-	@echo "  scripts/send-commands.sh '<json>'   (the booted simulator: docs/commands.md)"
+	@echo "  scripts/send-commands.sh '<json>'   (same IOS_SIM, by UDID: docs/commands.md)"
+
+# The UDID every target above uses; scripts/send-commands.sh sends to it.
+ios-sim-udid:
+	@echo $(IOS_SIM_UDID)
 
 ios-screenshot:
 	@mkdir -p build

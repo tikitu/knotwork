@@ -5,6 +5,7 @@ rather than merely compiled, and it is why `AppModel` exists at all.
 
 ```sh
 make ios-run-commands               # simulator, accepting commands; prints its UDID
+# IOS_SIM=… on both, to use a simulator other than the default
 scripts/send-commands.sh '{"commands":[{"newGrid":{"rows":4,"cols":6}}]}'
 make ios-screenshot                 # build/simulator.png
 ```
@@ -16,15 +17,11 @@ the runner is app-utils' `CommandInbox`, and `scripts/send-commands.sh`
 calls the imported `scripts/command-inbox-send.sh`. This document has what
 is Knotwork's: where the inbox is on, and the commands.
 
-**The sender targets the *booted* simulator** (`xcrun simctl … booted`),
-whichever simctl picks when several are booted: possibly another copy of
-the app, or a simulator without it ("not installed in a booted
-simulator"). Keep one booted, or do the sender's steps by UDID: write
-`inbox.json` into `Library/Application Support/Commands/` of
-`xcrun simctl get_app_container <udid> org.logophile.Knotwork data`, then
-`xcrun simctl spawn <udid> notifyutil -p org.logophile.Knotwork.commands`,
-and read `result.json` beside it. app-tooling's ticket 27EFXRY is for a
-`--device` option.
+**The sender reaches one simulator, by UDID**: the one `make ios-run`
+uses (`make ios-sim-udid`, from `IOS_SIM`), or `IOS_SIM_UDID` if set. Pass
+the same `IOS_SIM` to both. It never uses `booted`, which with several
+simulators booted picks any of them: possibly another copy of the app,
+or one without it.
 
 ## The invariant
 
@@ -150,5 +147,5 @@ There is no `state` command: `make ios-screenshot` shows the knot.
 ## Seeing what happened
 
 Commands change state; they do not describe the screen. `make
-ios-screenshot` saves the booted simulator's screen with `xcrun simctl io`,
+ios-screenshot` saves the simulator's screen (by UDID) with `xcrun simctl io`,
 which needs neither focus nor the Simulator app.
