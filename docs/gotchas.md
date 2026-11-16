@@ -27,14 +27,16 @@ would need UIKit and an `#if`.
 
 ## Simulators are chosen by name, and names repeat
 
-Every runtime has its own "iPhone 17", other projects rename theirs, and
+Every runtime has its own "iPhone 17", other projects boot theirs, and
 `xcodebuild -destination name=…` (which means the newest runtime) and
 `xcrun simctl … '<name>'` each choose by their own rules: a destination that
 built yesterday can fail today with "Unable to find a device matching the
-provided destination specifier". So the Makefile resolves `IOS_SIM` once,
-with `scripts/simulator-udid.py`, to the simulator of that name on the
-newest runtime, and uses the UDID everywhere. If it says there is no such
-simulator, it lists the names there are: set `IOS_SIM` to one.
+provided destination specifier", and a send by a generic name reached
+another project's booted "iPhone 17". So Knotwork has its own simulator,
+`IOS_SIM` ("Knotwork iPhone"), and the Makefile resolves it once, with
+app-tooling's `scripts/ios-sim-udid.sh`, and uses the UDID everywhere. The
+script makes it (`IOS_SIM_DEVICE_TYPE`, newest iOS runtime) if it is
+missing, and refuses a device type's own name as `IOS_SIM`.
 
 Xcode's device-interaction tools list only some simulators, and given a
 model name may choose one that belongs to another project. Pass a UDID, and

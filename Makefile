@@ -20,13 +20,14 @@ IOS_DIR      := apps/ios
 IOS_PROJECT  := $(IOS_DIR)/Knotwork.xcodeproj
 IOS_SCHEME   := Knotwork
 IOS_BUNDLE_ID:= org.logophile.Knotwork
-# Simulator names change with Xcode releases: `xcrun simctl list devices
-# available` lists what this Xcode has. Override with IOS_SIM=... The name is
-# resolved once, to the simulator of that name on the newest iOS runtime, and
-# the UDID used everywhere: names repeat across runtimes, and xcodebuild and
-# simctl would each choose differently (docs/gotchas.md).
-IOS_SIM      ?= iPhone 17
-IOS_SIM_UDID  = $(or $(shell scripts/simulator-udid.py '$(IOS_SIM)'),$(error no simulator '$(IOS_SIM)': set IOS_SIM))
+# The project's own simulator, made on the newest iOS runtime if missing
+# (app-tooling: command-inbox, scripts/ios-sim-udid.sh). Never a bare device
+# name: other projects' simulators have those too, and a send went to one
+# (docs/gotchas.md). The UDID is used everywhere; IOS_SIM_UDID=<udid> on the
+# command line or in the environment overrides it for one run.
+IOS_SIM             ?= Knotwork iPhone
+IOS_SIM_DEVICE_TYPE := iPhone 17
+IOS_SIM_UDID         = $(or $(shell scripts/ios-sim-udid.sh '$(IOS_SIM)' '$(IOS_SIM_DEVICE_TYPE)'),$(error no simulator '$(IOS_SIM)'))
 IOS_DEST      = platform=iOS Simulator,id=$(IOS_SIM_UDID)
 IOS_DERIVED  := build/ios
 IOS_SIM_APP  := $(IOS_DERIVED)/Build/Products/Debug-iphonesimulator/Knotwork.app

@@ -1,5 +1,29 @@
 # command-inbox changelog
 
+## v0.10.0 (2026-11-15)
+
+**Each project uses its own named iOS simulator: new
+`scripts/ios-sim-udid.sh <name> [<device type>]`.** It prints the UDID of
+the simulator called exactly `<name>` (a booted one first, `IOS_SIM_UDID`
+overriding), makes it on the newest iOS runtime if it is missing, and
+refuses a device type's own name ("iPhone 17"), which other projects'
+simulators share. A project with an iOS app: first delete any
+`scripts/ios-sim-udid.sh` of its own (peru refuses to overwrite it), then
+`make app-tooling-update`, then (`apply.md` step 6a) name its simulator
+after itself (`IOS_SIM ?= MyApp iPhone`) with a stated
+`IOS_SIM_DEVICE_TYPE`, take `ios-run`'s UDID and the sender's `--udid` from
+the script, and delete its own lookup (`IOS_SIM` by a generic name, "first
+booted iPad"). A Mac-only project: nothing to do; the script arrives with
+the update.
+
+**The inbox's condition is `ScratchBuild.isScratch`** (scratch-data's
+scratch build), not `--scratch-database`, which is gone, nor a check of the
+simulator on iOS (every simulator build is a scratch build). A project with
+the pattern: when it takes scratch-data's update, replace the condition in
+`Entry` (`apply.md` step 4) and, on iOS, `#if targetEnvironment(simulator)`
+around the inbox with `if ScratchBuild.isScratch`. Its `run-scratch` keeps
+passing `--commands <dir>` (`SCRATCH_ARGS`).
+
 ## v0.9.0 (2026-11-14)
 
 - **`command-inbox-send.sh --udid <id>`** names the simulator for

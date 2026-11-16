@@ -40,7 +40,7 @@ window: there is one knot, owned by the app delegate.
 |---|---|
 | `ios-project` | `xcodegen generate` |
 | `ios-build` | build for the simulator, unsigned, into `build/ios` |
-| `ios-run` | install and launch on `IOS_SIM`, booting it without Simulator.app |
+| `ios-run` | install and launch on `IOS_SIM` ("Knotwork iPhone", made if missing), booting it without Simulator.app |
 | `ios-run-commands` | the same, launched with `--accept-commands` (`docs/commands.md`) |
 | `ios-screenshot` | `xcrun simctl io … screenshot build/simulator.png` |
 | `ios-device-build`, `ios-device-run` | sign for real (`-allowProvisioningUpdates`) and install with `xcrun devicectl` on `IOS_DEVICE` |

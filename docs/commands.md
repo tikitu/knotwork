@@ -5,7 +5,7 @@ rather than merely compiled, and it is why `AppModel` exists at all.
 
 ```sh
 make ios-run-commands               # simulator, accepting commands; prints its UDID
-# IOS_SIM=… on both, to use a simulator other than the default
+# IOS_SIM=… on both, to use a simulator other than "Knotwork iPhone"
 scripts/send-commands.sh '{"commands":[{"newGrid":{"rows":4,"cols":6}}]}'
 make ios-screenshot                 # build/simulator.png
 ```
@@ -18,8 +18,8 @@ calls the imported `scripts/command-inbox-send.sh`. This document has what
 is Knotwork's: where the inbox is on, and the commands.
 
 **The sender reaches one simulator, by UDID**: the one `make ios-run`
-uses (`make ios-sim-udid`, from `IOS_SIM`), or `IOS_SIM_UDID` if set. Pass
-the same `IOS_SIM` to both. It never uses `booted`, which with several
+uses (`make ios-sim-udid`: the project's own simulator, `IOS_SIM`, made if
+missing), or `IOS_SIM_UDID` if set. Pass the same `IOS_SIM` to both. It never uses `booted`, which with several
 simulators booted picks any of them: possibly another copy of the app,
 or one without it.
 
